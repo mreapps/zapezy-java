@@ -8,8 +8,14 @@
     <tiles:insertAttribute name="meta" />
 </head>
 <body>
+
 <div id="header">
     <h1><tiles:insertAttribute name="header" defaultValue=""/></h1>
+    <span style="float: right">
+    <a href="?lang=en">en</a>
+    |
+    <a href="?lang=no">no</a>
+</span>
 </div>
 <div id="body">
     <tiles:insertAttribute name="body" />

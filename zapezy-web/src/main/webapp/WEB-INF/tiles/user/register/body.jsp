@@ -1,22 +1,23 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <form:form method="post" action="registerUser.html">
 
     <table>
         <tr>
-            <td><form:label path="email">Email address</form:label></td>
+            <td><form:label path="email"><spring:message code="label.email"/></form:label></td>
             <td><form:input path="email" /></td>
         </tr>
         <tr>
-            <td><form:label path="password1">Password</form:label></td>
+            <td><form:label path="password1"><spring:message code="label.password"/></form:label></td>
             <td><form:password path="password1" /></td>
         </tr>
         <tr>
-            <td><form:label path="password2">Re-type password</form:label></td>
+            <td><form:label path="password2"><spring:message code="label.retype_password"/></form:label></td>
             <td><form:password path="password2" /></td>
         </tr>
         <tr>
             <td colspan="2">
-                <input type="submit" value="Register"/>
+                <input type="submit" value="<spring:message code="label.register"/>"/>
             </td>
         </tr>
     </table>
