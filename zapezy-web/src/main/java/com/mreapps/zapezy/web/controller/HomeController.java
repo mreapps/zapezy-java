@@ -9,7 +9,6 @@ public class HomeController
     @RequestMapping(value = "/")
     public String home()
     {
-        System.out.println("HomeController: Passing through...");
         return "common/home";
     }
 }

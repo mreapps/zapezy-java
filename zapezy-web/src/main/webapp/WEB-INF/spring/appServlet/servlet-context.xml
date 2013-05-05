@@ -62,6 +62,6 @@
         <property name="interceptors" ref="localeChangeInterceptor" />
     </bean>
 
-    <mvc:resources mapping="/resources/**" location="/resources/" />
+    <mvc:resources mapping="/resources/**" location="/WEB-INF/tiles/resources/" />
 
 </beans>

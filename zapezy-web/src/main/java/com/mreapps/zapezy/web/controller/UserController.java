@@ -22,8 +22,6 @@ public class UserController
     @RequestMapping(value = "/registerUser", method = RequestMethod.POST)
     public String registerUser(@ModelAttribute("register")RegisterModel model, BindingResult result)
     {
-        System.out.println("Email:" + model.getEmail() + "Password:" + model.getPassword1());
-
         return "redirect:";
     }
 }
