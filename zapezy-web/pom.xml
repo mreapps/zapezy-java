@@ -112,8 +112,6 @@
             <version>${org.springframework.version}</version>
         </dependency>
 
-        <!--tiles-request-api, tiles-api, tiles-core, tiles-servlet, tiles-jsp, tiles-el-->
-
         <dependency>
             <groupId>org.apache.tiles</groupId>
             <artifactId>tiles-request-api</artifactId>
