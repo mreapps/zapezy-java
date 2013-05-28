@@ -3,14 +3,28 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:mvc="http://www.springframework.org/schema/mvc"
        xmlns:context="http://www.springframework.org/schema/context"
-       xsi:schemaLocation="
-        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
-        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
-        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+
+    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:zapezy-dao.properties</value>
+                <value>classpath:mail.properties</value>
+            </list>
+        </property>
+    </bean>
 
     <import resource="classpath:service-context.xml"/>
 
     <context:component-scan base-package="com.mreapps.zapezy.web"/>
+
+    <bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+        <property name="basename" value="classpath:messages"/>
+        <property name="defaultEncoding" value="UTF-8"/>
+    </bean>
+
+    <import resource="classpath:applicationContext-security.xml"/>
 
     <mvc:annotation-driven/>
 
@@ -29,13 +43,8 @@
         <property name="suffix" value=""/>
     </bean>
 
-    <bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
-        <property name="basename" value="classpath:messages" />
-        <property name="defaultEncoding" value="UTF-8"/>
-    </bean>
-
     <bean id="localeChangeInterceptor" class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
-        <property name="paramName" value="lang" />
+        <property name="paramName" value="lang"/>
     </bean>
 
     <bean id="localeResolver" class="org.springframework.web.servlet.i18n.CookieLocaleResolver">
@@ -43,15 +52,15 @@
     </bean>
 
     <bean id="themeSource" class="org.springframework.ui.context.support.ResourceBundleThemeSource">
-        <property name="basenamePrefix" value="theme-" />
+        <property name="basenamePrefix" value="theme-"/>
     </bean>
 
     <!-- Theme Change Interceptor and Resolver definition -->
     <bean id="themeChangeInterceptor" class="org.springframework.web.servlet.theme.ThemeChangeInterceptor">
-        <property name="paramName" value="theme" />
+        <property name="paramName" value="theme"/>
     </bean>
     <bean id="themeResolver" class="org.springframework.web.servlet.theme.CookieThemeResolver">
-        <property name="defaultThemeName" value="default" />
+        <property name="defaultThemeName" value="default"/>
     </bean>
 
     <mvc:interceptors>
@@ -59,10 +68,11 @@
         <ref bean="themeChangeInterceptor"/>
     </mvc:interceptors>
 
-    <bean id="handlerMapping" class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping">
-        <property name="interceptors" ref="localeChangeInterceptor" />
+    <bean id="handlerMapping"
+          class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping">
+        <property name="interceptors" ref="localeChangeInterceptor"/>
     </bean>
 
-    <mvc:resources mapping="/resources/**" location="/WEB-INF/tiles/resources/" />
+    <mvc:resources mapping="/resources/**" location="/WEB-INF/tiles/resources/"/>
 
 </beans>

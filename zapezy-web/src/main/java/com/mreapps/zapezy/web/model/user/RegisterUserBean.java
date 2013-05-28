@@ -1,10 +1,25 @@
 package com.mreapps.zapezy.web.model.user;
 
+import org.hibernate.validator.constraints.Email;
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.NotEmpty;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 @SuppressWarnings("UnusedDeclaration")
-public class RegisterModel
+public class RegisterUserBean
 {
+    @NotNull
+    @NotEmpty
+    @Email
+    @Size(max = 255)
     private String email;
+
+    @NotNull
+    @Length(min = 6, max = 40)
     private String password1;
+
     private String password2;
 
     public String getEmail()

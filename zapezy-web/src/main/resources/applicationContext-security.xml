@@ -8,15 +8,21 @@
 
     <http use-expressions="true">
         <intercept-url pattern="/**" access="permitAll"/>
-        <form-login/>
+        <form-login
+                login-page="/login"
+                default-target-url="/home"
+                authentication-failure-url="/loginfailed"
+                />
+        <logout logout-success-url="/logout" />
     </http>
 
     <authentication-manager>
-        <authentication-provider>
-            <user-service>
-                <user name="esi" password="s" authorities="admin"/>
-                <user name="joe" password="common" authorities="user"/>
-            </user-service>
-        </authentication-provider>
+        <authentication-provider ref="defaultAuthenticationProvider" />
+        <!--<authentication-provider>-->
+            <!--<user-service>-->
+                <!--<user name="esi" password="s" authorities="admin"/>-->
+                <!--<user name="joe" password="common" authorities="user"/>-->
+            <!--</user-service>-->
+        <!--</authentication-provider>-->
     </authentication-manager>
 </beans:beans>
