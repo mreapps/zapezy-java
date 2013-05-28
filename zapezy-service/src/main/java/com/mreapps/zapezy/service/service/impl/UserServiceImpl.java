@@ -1,5 +1,6 @@
 package com.mreapps.zapezy.service.service.impl;
 
+import com.mreapps.zapezy.dao.entity.Role;
 import com.mreapps.zapezy.dao.entity.User;
 import com.mreapps.zapezy.dao.repository.UserDao;
 import com.mreapps.zapezy.service.service.MailService;
@@ -7,6 +8,7 @@ import com.mreapps.zapezy.service.service.UserService;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
@@ -19,6 +21,8 @@ import java.util.Date;
 @Transactional(readOnly = true)
 public class UserServiceImpl implements UserService
 {
+    private static Logger logger = Logger.getLogger(UserServiceImpl.class);
+
     @Autowired
     private UserDao userDao;
 
@@ -46,6 +50,7 @@ public class UserServiceImpl implements UserService
         newUser.setEmail(email);
         newUser.setPassword(encryptPassword(email, password));
         newUser.setActivationToken(RandomStringUtils.randomAlphanumeric(50));
+        newUser.setRole(Role.UNVERIFIED_USER);
 
         newUser = userDao.store(newUser);
 
@@ -78,6 +83,7 @@ public class UserServiceImpl implements UserService
         else
         {
             user.setActivatedAt(new Date());
+            user.setRole(Role.USER);
             userDao.store(user);
 
             return "user_activated";
@@ -98,6 +104,22 @@ public class UserServiceImpl implements UserService
             }
         }
         return false;
+    }
+
+    @Override
+    public Role getUserRole(String email)
+    {
+        assert email != null;
+
+        User user = userDao.getByEmail(email);
+        return user == null ? null : user.getRole();
+    }
+
+    @Override
+    public String getEmailByActivationToken(String activationToken)
+    {
+        User user = userDao.getByActivationToken(activationToken);
+        return user == null ? null : user.getEmail();
     }
 
     private String encryptPassword(String email, String password)

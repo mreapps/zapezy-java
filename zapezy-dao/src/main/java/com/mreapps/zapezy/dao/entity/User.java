@@ -25,6 +25,9 @@ public class User extends AbstractBaseEntity
     @Column(name = "activated_at")
     private Date activatedAt;
 
+    @Column(name = "role")
+    private String roleAsString;
+
     @PrePersist
     public void prePersist()
     {
@@ -49,6 +52,16 @@ public class User extends AbstractBaseEntity
     public void setPassword(String password)
     {
         this.password = password;
+    }
+
+    public Role getRole()
+    {
+        return roleAsString == null ? null : Role.getByKey(roleAsString);
+    }
+
+    public void setRole(Role role)
+    {
+        this.roleAsString = role == null ? null : role.getKey();
     }
 
     public Date getCreatedAt()

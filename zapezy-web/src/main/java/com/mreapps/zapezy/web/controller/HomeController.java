@@ -16,6 +16,7 @@ public class HomeController
         model.addAttribute("username", name);
         model.addAttribute("message", "Spring Security Custom Form example");
 
+
         return "common/home";
     }
 }
