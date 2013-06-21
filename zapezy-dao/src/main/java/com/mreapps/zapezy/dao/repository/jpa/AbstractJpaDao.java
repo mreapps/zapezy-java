@@ -7,6 +7,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
+import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
 import java.util.List;
 
@@ -27,6 +28,22 @@ public class AbstractJpaDao<T extends BaseEntity> implements GenericDao<T>
             t = entityManager.merge(t);
         }
         return t;
+    }
+
+    @Override
+    public void delete(T t)
+    {
+        if(t != null && t.getId() != null)
+        {
+            entityManager.remove(t);
+        }
+    }
+
+    @Override
+    public T get(long id)
+    {
+        @SuppressWarnings("unchecked") Class<T> persistentClass = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+        return entityManager.find(persistentClass, id);
     }
 
     protected final <T> T findOneByCriteriaQuery(final CriteriaQuery<T> cq)

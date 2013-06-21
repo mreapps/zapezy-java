@@ -3,6 +3,7 @@ package com.mreapps.zapezy.web.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 
@@ -10,12 +11,11 @@ import java.security.Principal;
 public class HomeController
 {
     @RequestMapping(value = "/")
-    public String home(ModelMap model, Principal principal)
+    public String home(ModelMap model, Principal principal, RedirectAttributes redirectAttributes)
     {
         String name = principal == null ? "Anonymous" : principal.getName();
         model.addAttribute("username", name);
         model.addAttribute("message", "Spring Security Custom Form example");
-
 
         return "common/home";
     }

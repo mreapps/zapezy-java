@@ -3,6 +3,7 @@ package com.mreapps.zapezy.web.controller;
 import com.mreapps.zapezy.service.service.UserService;
 import com.mreapps.zapezy.web.ApplicationContext;
 import com.mreapps.zapezy.web.authentication.AutoLoginProvider;
+import com.mreapps.zapezy.web.global.StatusMessageModel;
 import com.mreapps.zapezy.web.model.user.RegisterUserBean;
 import com.mreapps.zapezy.web.model.user.RegisterUserValidator;
 import org.apache.log4j.Logger;
@@ -46,8 +47,6 @@ public class UserController
     {
         model.addAttribute("user", new RegisterUserBean());
         return "user/register";
-
-//        return new ModelAndView("user/register", "command", new RegisterUserBean());
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.GET)
@@ -57,24 +56,27 @@ public class UserController
     }
 
     @RequestMapping(value = "/loginfailed", method = RequestMethod.GET)
-    public String loginFailed(ModelMap model)
+    public String loginFailed(ModelMap model, Locale locale)
     {
+        StatusMessageModel.setErrorMessage(model, messageSource.getMessage("login.failed", null, locale));
         model.addAttribute("error", true);
         return "user/login";
     }
 
     @RequestMapping(value = "/logout", method = RequestMethod.GET)
-    public String logout()
+    public String logout(ModelMap model, Locale locale)
     {
+        StatusMessageModel.setInfoMessage(model, messageSource.getMessage("logout.success", null, locale));
         return "user/login";
     }
 
     @RequestMapping(value = "/activate", method = RequestMethod.GET)
-    public String activate(@RequestParam("code") String code, Locale locale, HttpServletRequest request)
+    public String activate(@RequestParam("code") String code, Locale locale, HttpServletRequest request, ModelMap model)
     {
         String userMessageResourceCode = userService.activateUser(code);
-        // TODO print status message
         String statusMessage = messageSource.getMessage(userMessageResourceCode, null, locale);
+        StatusMessageModel.setInfoMessage(model, statusMessage);
+
         if (userMessageResourceCode.equals("user_activated"))
         {
             String email = userService.getEmailByActivationToken(code);
@@ -106,9 +108,7 @@ public class UserController
     /*
    TODO brukerfunksjonalitet
     - ikke pålogget
-       - logg på
        - glemt passord
-       - aktivér bruker
        - remember me
     - pålogget
        - resend aktiveringsepost
