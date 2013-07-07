@@ -2,8 +2,10 @@ package com.mreapps.zapezy.dao.entity.common;
 
 public enum LanguageCode
 {
-    NORWEGIAN_BOKMAL(1, "nb"),
-    ENGLISH(2, "en");
+    NORWEGIAN_BOKMAL(1, "no"),
+    ENGLISH(2, "en"),
+    SWEDISH(3, "se"),
+    DANISH(4, "dk");
 
     private int id;
     private String code;

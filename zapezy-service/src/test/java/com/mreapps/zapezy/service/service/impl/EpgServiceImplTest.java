@@ -2,20 +2,17 @@ package com.mreapps.zapezy.service.service.impl;
 
 import com.mreapps.zapezy.dao.entity.tv.Channel;
 import com.mreapps.zapezy.dao.repository.ChannelDao;
-import com.mreapps.zapezy.dao.repository.ProgrammeDao;
 import com.mreapps.zapezy.service.service.EpgService;
-import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.transaction.TransactionConfiguration;
-import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBException;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.util.Date;
+import java.util.Arrays;
+import java.util.List;
 
 @ContextConfiguration("classpath:spring-test-emf.xml")
 @TransactionConfiguration(defaultRollback = true)
@@ -25,31 +22,33 @@ public class EpgServiceImplTest extends AbstractTransactionalJUnit4SpringContext
     private EpgService epgService;
 
     @Autowired
-    private ProgrammeDao programmeDao;
-
-    @Autowired
     private ChannelDao channelDao;
 
     @Test
-    public void refreshChannels() throws IOException, JAXBException, SAXException, ParserConfigurationException
+    public void refreshEpg() throws JAXBException, IOException
     {
-        Assert.assertEquals(63, epgService.refreshChannels());
+        List<String> channelIds = Arrays.asList("NRK1.no", "NRK2.no", "NRK3.no", "NRKSuper.no", "tv2.no", "TV2Zebra.no",
+                "TV2Nyhetskanalen.no", "TV2Sport.no", "tv2Bliss.no", "TV2PremierLeague1.no", "TV2Filmkanalen.no",
+                "tvnorge.no", "Max.no", "FEM.no", "discovery.no", "TLCNorge.no", "DisneyChannel.se", "TheVoice.no",
+                "CANAL9.dk", "DisneyPlayhouse.no", "BBCKnowledge.se", "DisneyXD.no", "BBCentertainment.se",
+                "BBCLifestyle.se", "AnimalPlanetHD.no", "EurosportHD.no", "Eurosport2.no", "BBCWorldNews.dk",
+                "ViasatTV3.no", "Viasat4.no", "TravelChannel.no", "HistoryHD.no"
+        );
+
+        for (String channelId : channelIds)
+        {
+            addChannel(channelId);
+        }
+
+        System.out.println(epgService.refreshEpg());
     }
 
-    @Test
-    public void refreshProgrammesForChannel() throws IOException, JAXBException, SAXException, ParserConfigurationException
+    private void addChannel(String channelId)
     {
         Channel channel = new Channel();
-        channel.setChannelId("action.canalplus.no");
-        channel.setEpgBaseUrl("http://data.epg.no/xmltv/");
-        channel.setChannelNameShort("Canal+ Action");
-        channel.setChannelNameFull("Canal+ Action");
-        channel = channelDao.store(channel);
-
-        final Date now = new Date();
-
-        int count = epgService.refreshProgrammesForChannel(channel, 3);
-
-        Assert.assertEquals(count, programmeDao.countAllProgrammes(channel));
+        channel.setChannelId(channelId);
+        channel.setChannelNameShort("");
+        channel.setChannelNameFull("");
+        channelDao.store(channel);
     }
 }

@@ -11,4 +11,6 @@ public interface UserDao extends GenericDao<User>
     List<User> listUsers(final int firstResult, final int maxResults);
 
     User getByActivationToken(String activationToken);
+
+    User getByResetPasswordToken(String resetPasswordToken);
 }

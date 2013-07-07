@@ -9,11 +9,11 @@
     <http use-expressions="true">
         <intercept-url pattern="/**" access="permitAll"/>
         <form-login
-                login-page="/login"
-                default-target-url="/home"
-                authentication-failure-url="/loginfailed"
+                login-page="/signIn"
+                default-target-url="/"
+                authentication-failure-url="/signInFailed"
                 />
-        <logout logout-success-url="/logout" />
+        <logout logout-success-url="/signOut" />
     </http>
 
     <authentication-manager>
@@ -25,4 +25,7 @@
             <!--</user-service>-->
         <!--</authentication-provider>-->
     </authentication-manager>
+
+    <global-method-security pre-post-annotations="enabled" />
+
 </beans:beans>

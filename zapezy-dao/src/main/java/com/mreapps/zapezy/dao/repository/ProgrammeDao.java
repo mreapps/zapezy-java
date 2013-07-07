@@ -5,6 +5,7 @@ import com.mreapps.zapezy.dao.entity.tv.Programme;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public interface ProgrammeDao extends GenericDao<Programme>
 {
@@ -12,5 +13,13 @@ public interface ProgrammeDao extends GenericDao<Programme>
 
     Programme findProgramme(Channel channel, Date start);
 
-    List<Programme> findProgrammesForDay(Channel channel, Date day);
+    Programme findCurrentProgramme(Channel channel);
+
+    Programme findNextProgramme(Channel channel);
+
+    Map<Integer, Programme> findCurrentProgrammes();
+
+    Map<Integer, Programme> findNextProgrammes();
+
+    List<Programme> getFutureProgrammes(Channel channel);
 }

@@ -25,6 +25,12 @@ public class User extends AbstractBaseEntity
     @Column(name = "activated_at")
     private Date activatedAt;
 
+    @Column(name = "reset_password_token", length = 100)
+    private String resetPasswordToken;
+
+    @Column(name = "reset_password_token_created_at")
+    private Date resetPasswordTokenCreatedAt;
+
     @Column(name = "role")
     private String roleAsString;
 
@@ -87,5 +93,25 @@ public class User extends AbstractBaseEntity
     public void setActivatedAt(Date activatedAt)
     {
         this.activatedAt = activatedAt;
+    }
+
+    public String getResetPasswordToken()
+    {
+        return resetPasswordToken;
+    }
+
+    public void setResetPasswordToken(String resetPasswordToken)
+    {
+        this.resetPasswordToken = resetPasswordToken;
+    }
+
+    public Date getResetPasswordTokenCreatedAt()
+    {
+        return resetPasswordTokenCreatedAt;
+    }
+
+    public void setResetPasswordTokenCreatedAt(Date resetPasswordTokenCreatedAt)
+    {
+        this.resetPasswordTokenCreatedAt = resetPasswordTokenCreatedAt;
     }
 }

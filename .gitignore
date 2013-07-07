@@ -6,3 +6,4 @@ target
 *.classpath
 zapezy-dao/src/main/generated/*
 zapezy-service/src/main/generated/*
+secret.properties

@@ -10,7 +10,7 @@
         <property name="locations">
             <list>
                 <value>classpath:zapezy-dao.properties</value>
-                <value>classpath:mail.properties</value>
+                <value>classpath:secret.properties</value>
             </list>
         </property>
     </bean>
@@ -37,7 +37,7 @@
         <property name="definitions" value="/WEB-INF/tiles.xml"/>
     </bean>
 
-    <!-- only present to please idea and SpringMVCViewInspection -->
+    <!--only present to please idea and SpringMVCViewInspection -->
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
         <property name="prefix" value="/WEB-INF/tiles/"/>
         <property name="suffix" value=""/>
@@ -48,7 +48,7 @@
     </bean>
 
     <bean id="localeResolver" class="org.springframework.web.servlet.i18n.CookieLocaleResolver">
-        <property name="defaultLocale" value="en"/>
+        <property name="defaultLocale" value="no"/>
     </bean>
 
     <bean id="themeSource" class="org.springframework.ui.context.support.ResourceBundleThemeSource">
@@ -73,10 +73,22 @@
         <property name="interceptors" ref="localeChangeInterceptor"/>
     </bean>
 
-    <mvc:resources mapping="/resources/**" location="/WEB-INF/tiles/resources/"/>
+    <mvc:resources mapping="/resources/**" location="/WEB-INF/resources/"/>
 
     <mvc:interceptors>
-        <bean class="com.mreapps.zapezy.web.interceptor.ExecuteTimeInterceptor" />
+        <bean class="com.mreapps.zapezy.web.interceptor.MessageInterceptor"/>
+        <bean class="com.mreapps.zapezy.web.interceptor.ExecuteTimeInterceptor"/>
     </mvc:interceptors>
+
+    <bean id="connectionFactoryLocator" class="org.springframework.social.connect.support.ConnectionFactoryRegistry">
+        <property name="connectionFactories">
+            <list>
+                <bean class="org.springframework.social.facebook.connect.FacebookConnectionFactory">
+                    <constructor-arg value="${facebook.clientId}"/>
+                    <constructor-arg value="${facebook.clientSecret}"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
 
 </beans>

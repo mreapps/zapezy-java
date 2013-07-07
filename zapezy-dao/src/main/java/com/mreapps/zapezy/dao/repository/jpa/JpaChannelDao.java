@@ -37,4 +37,19 @@ public class JpaChannelDao extends AbstractJpaDao<Channel> implements ChannelDao
 
         return findByCriteriaQuery(cq);
     }
+
+    @Override
+    public List<Channel> listChannelsWithWebtv()
+    {
+        final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        final CriteriaQuery<Channel> cq = cb.createQuery(Channel.class);
+        final Root<Channel> channelRoot = cq.from(Channel.class);
+        cq.select(channelRoot);
+        cq.where(
+                channelRoot.get(Channel_.webtvUrl).isNotNull()
+        );
+        cq.orderBy(cb.asc(channelRoot.get(Channel_.sortIndex)));
+
+        return findByCriteriaQuery(cq);
+    }
 }

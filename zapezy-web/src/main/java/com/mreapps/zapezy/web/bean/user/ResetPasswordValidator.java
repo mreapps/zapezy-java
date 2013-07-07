@@ -1,4 +1,4 @@
-package com.mreapps.zapezy.web.model.user;
+package com.mreapps.zapezy.web.bean.user;
 
 import com.mreapps.zapezy.dao.repository.UserDao;
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -8,7 +8,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 @Component
-public class RegisterUserValidator implements Validator
+public class ResetPasswordValidator implements Validator
 {
     @Autowired
     private UserDao userDao;
@@ -16,22 +16,17 @@ public class RegisterUserValidator implements Validator
     @Override
     public boolean supports(Class<?> clazz)
     {
-        return RegisterUserBean.class.equals(clazz);
+        return ResetPasswordBean.class.equals(clazz);
     }
 
     @Override
     public void validate(Object target, Errors errors)
     {
-        RegisterUserBean bean = (RegisterUserBean)target;
+        ResetPasswordBean bean = (ResetPasswordBean)target;
 
         if(!new EqualsBuilder().append(bean.getPassword1(), bean.getPassword2()).isEquals())
         {
             errors.rejectValue("password2", "com.mreapps.validator.constraints.Password.mismatch");
-        }
-
-        if(bean.getEmail() != null && userDao.getByEmail(bean.getEmail()) != null)
-        {
-            errors.rejectValue("email", "com.mreapps.validator.constraints.Email.inUse");
         }
     }
 }

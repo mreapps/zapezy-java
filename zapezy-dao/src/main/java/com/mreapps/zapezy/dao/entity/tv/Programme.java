@@ -42,21 +42,27 @@ public class Programme extends AbstractBaseEntity
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "textNb", column = @Column(name = "title_nb", length = 100)),
+            @AttributeOverride(name = "textSv", column = @Column(name = "title_sv", length = 100)),
+            @AttributeOverride(name = "textDk", column = @Column(name = "title_dk", length = 100)),
             @AttributeOverride(name = "textEn", column = @Column(name = "title_en", length = 100))
     })
     private LanguageString title = new LanguageString();
 
     @Embedded
     @AttributeOverrides({
-            @AttributeOverride(name = "textNb", column = @Column(name = "sub_title_nb", length = 100)),
-            @AttributeOverride(name = "textEn", column = @Column(name = "sub_title_en", length = 100))
+            @AttributeOverride(name = "textNb", column = @Column(name = "sub_title_nb", length = 256)),
+            @AttributeOverride(name = "textSv", column = @Column(name = "sub_title_sv", length = 256)),
+            @AttributeOverride(name = "textDk", column = @Column(name = "sub_title_dk", length = 256)),
+            @AttributeOverride(name = "textEn", column = @Column(name = "sub_title_en", length = 256))
     })
     private LanguageString subTitle = new LanguageString();
 
     @Embedded
     @AttributeOverrides({
-            @AttributeOverride(name = "textNb", column = @Column(name = "description_nb", length = 1024)),
-            @AttributeOverride(name = "textEn", column = @Column(name = "description_en", length = 1024))
+            @AttributeOverride(name = "textNb", column = @Column(name = "description_nb", length = 2048)),
+            @AttributeOverride(name = "textSv", column = @Column(name = "description_sv", length = 2048)),
+            @AttributeOverride(name = "textDk", column = @Column(name = "description_dk", length = 2048)),
+            @AttributeOverride(name = "textEn", column = @Column(name = "description_en", length = 2048))
     })
     private LanguageString description = new LanguageString();
 
@@ -111,17 +117,12 @@ public class Programme extends AbstractBaseEntity
 
     public String getTitle(LanguageCode languageCode)
     {
-        return title.getText(languageCode);
+        return this.title.getText(languageCode);
     }
 
     public void setTitle(String title, LanguageCode languageCode)
     {
-        this.title.setText(title, languageCode);
-    }
-
-    public LanguageString getTitle()
-    {
-        return title;
+        this.title.setText(title, languageCode, 100);
     }
 
     public String getSubTitle(LanguageCode languageCode)
@@ -131,12 +132,7 @@ public class Programme extends AbstractBaseEntity
 
     public void setSubTitle(String subTitle, LanguageCode languageCode)
     {
-        this.subTitle.setText(subTitle, languageCode);
-    }
-
-    public LanguageString getSubTitle()
-    {
-        return subTitle;
+        this.subTitle.setText(subTitle, languageCode, 256);
     }
 
     public String getDescription(LanguageCode languageCode)
@@ -146,12 +142,7 @@ public class Programme extends AbstractBaseEntity
 
     public void setDescription(String description, LanguageCode languageCode)
     {
-        this.description.setText(description, languageCode);
-    }
-
-    public LanguageString getDescription()
-    {
-        return description;
+        this.description.setText(description, languageCode, 2048);
     }
 
     public String getDate()

@@ -3,7 +3,10 @@ package com.mreapps.zapezy.service.service.impl;
 import com.mreapps.zapezy.dao.entity.Role;
 import com.mreapps.zapezy.dao.entity.User;
 import com.mreapps.zapezy.dao.repository.UserDao;
+import com.mreapps.zapezy.service.entity.StatusMessage;
+import com.mreapps.zapezy.service.entity.StatusMessageType;
 import com.mreapps.zapezy.service.service.MailService;
+import com.mreapps.zapezy.service.service.MessageSourceService;
 import com.mreapps.zapezy.service.service.UserService;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
@@ -16,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.Locale;
 
 @Service
 @Transactional(readOnly = true)
@@ -29,9 +33,12 @@ public class UserServiceImpl implements UserService
     @Autowired
     private MailService mailService;
 
+    @Autowired
+    private MessageSourceService messageSourceService;
+
     @Override
     @Transactional(readOnly = false)
-    public synchronized void registerNewUser(String email, String password, String urlPrefix)
+    public synchronized void registerNewUser(String email, String password, String urlPrefix, Locale locale)
     {
         Validate.notNull(email);
         Validate.notNull(password);
@@ -54,31 +61,30 @@ public class UserServiceImpl implements UserService
 
         newUser = userDao.store(newUser);
 
-        String subject = "Account activation required";
-        @SuppressWarnings("StringBufferReplaceableByString")
-        String message = new StringBuilder()
-                .append("Thanks for signing up with zapezy.com!\n\nYou must follow this link to activate your account:\n\n")
-                .append("http://").append(urlPrefix).append("/activate?code=").append(newUser.getActivationToken()).append("\n\n")
-                .append("The account must be activated within 48 hours or it will be deleted.\n\n")
-                .append("zapezy.com :: webtv made easy")
-                .toString();
+        sendActivationToken(newUser, urlPrefix, locale);
+    }
 
-        mailService.sendMail(email, subject, message);
+    private void sendActivationToken(User user, String urlPrefix, Locale locale)
+    {
+        String subject = messageSourceService.get("send.activation.token.subject", locale);
+        String message = messageSourceService.get("send.activation.token.message", locale, urlPrefix, user.getActivationToken());
+
+        mailService.sendMail(user.getEmail(), subject, message);
     }
 
     @Override
     @Transactional(readOnly = false)
-    public synchronized String activateUser(String activationToken)
+    public synchronized StatusMessage activateUser(String activationToken, Locale locale)
     {
         User user = userDao.getByActivationToken(activationToken);
 
         if(user == null)
         {
-            return "unknown_activation_token";
+            return new StatusMessage(StatusMessageType.ERROR, messageSourceService.get("unknown_activation_token", locale));
         }
         else if(user.getActivatedAt() != null)
         {
-            return "user_already_activated";
+            return new StatusMessage(StatusMessageType.WARNING, messageSourceService.get("user_already_activated", locale));
         }
         else
         {
@@ -86,7 +92,33 @@ public class UserServiceImpl implements UserService
             user.setRole(Role.USER);
             userDao.store(user);
 
-            return "user_activated";
+            return new StatusMessage(StatusMessageType.SUCCESS, messageSourceService.get("user_activated", locale));
+        }
+    }
+
+    @Override
+    public boolean isActivated(String email)
+    {
+        User user = userDao.getByEmail(email);
+        return user != null && user.getActivatedAt() != null;
+    }
+
+    @Override
+    public StatusMessage resendActivationToken(String email, String urlPrefix, Locale locale)
+    {
+        User user = userDao.getByEmail(email);
+        if(user == null)
+        {
+            return new StatusMessage(StatusMessageType.ERROR, messageSourceService.get("unknown_email_address_x", locale, email));
+        }
+        else if(user.getActivatedAt() != null)
+        {
+            return new StatusMessage(StatusMessageType.INFO, messageSourceService.get("user_already_activated", locale));
+        }
+        else
+        {
+            sendActivationToken(user, urlPrefix, locale);
+            return new StatusMessage(StatusMessageType.SUCCESS, messageSourceService.get("user_already_activated", locale));
         }
     }
 
@@ -120,6 +152,50 @@ public class UserServiceImpl implements UserService
     {
         User user = userDao.getByActivationToken(activationToken);
         return user == null ? null : user.getEmail();
+    }
+
+    @Override
+    public String getEmailByResetPasswordToken(String resetPasswordToken)
+    {
+        User user = userDao.getByResetPasswordToken(resetPasswordToken);
+        return user == null ? null : user.getEmail();
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void sendResetPasswordToken(String email, String urlPrefix, Locale locale)
+    {
+        User user = userDao.getByEmail(email);
+
+        String subject = messageSourceService.get("send.reset.password.token.subject", locale);
+        String message;
+        if(user == null)
+        {
+            message = messageSourceService.get("send.reset.password.token.message.unknown.user", locale, urlPrefix);
+        }
+        else
+        {
+            user.setResetPasswordToken(RandomStringUtils.randomAlphanumeric(50));
+            user.setResetPasswordTokenCreatedAt(new Date());
+            user = userDao.store(user);
+            message = messageSourceService.get("send.reset.password.token.message", locale, urlPrefix, user.getResetPasswordToken());
+        }
+        mailService.sendMail(email, subject, message);
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public String changePassword(String resetPasswordToken, String password)
+    {
+        User user = userDao.getByResetPasswordToken(resetPasswordToken);
+        if(user != null)
+        {
+            user.setPassword(encryptPassword(user.getEmail(), password));
+            user.setResetPasswordTokenCreatedAt(null);
+            user.setResetPasswordToken(null);
+            return userDao.store(user).getEmail();
+        }
+        return null;
     }
 
     private String encryptPassword(String email, String password)

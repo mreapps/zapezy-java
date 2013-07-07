@@ -7,7 +7,12 @@ begin;
     created_at timestamp not null,
     activation_token varchar(100),
     activated_at timestamp,
-    role varchar(20) not null
+    reset_password_token varchar(100),
+    reset_password_token_created_at timestamp,
+    role varchar(20) not null,
+    fb_id int8,
+    fb_access_token varchar(256),
+    fb_access_token_expires timestamp
   );
   create unique index uix_users_email_address on users (email_address);
 
@@ -23,7 +28,10 @@ begin;
     channel_id varchar(255) not null,
     channel_name_short varchar(30) not null,
     channel_name_full varchar(255) not null,
-    epg_base_url varchar(255)
+    epg_base_url varchar(255),
+    icon_url varchar (255),
+    sort_index int2,
+    webtv_url varchar(255)
   );
   create unique index uix_channel_channel_id on channel (channel_id);
 
@@ -45,15 +53,22 @@ begin;
     start timestamp not null,
     stop timestamp not null,
     title_nb varchar(100),
-    title_en varchar(100),
     sub_title_nb varchar(100),
+    description_nb text,
+    title_sv varchar(100),
+    sub_title_sv varchar(100),
+    description_sv text,
+    title_en varchar(100),
     sub_title_en varchar(100),
-    description_nb varchar(1024),
-    description_en varchar(1024),
+    description_en text,
+    title_dk varchar(100),
+    sub_title_dk varchar(100),
+    description_dk text,
     date_string varchar(8)
   );
   alter table programme add constraint fk_programme_channel foreign key (channel_uid) references channel (uid);
   create unique index uix_programme_start on programme (channel_uid, start);
+  create index ix_programme_stop on programme (channel_uid, stop);
 
   create table person
   (
@@ -78,4 +93,14 @@ begin;
   );
   alter table programme_actor add constraint fk_programme_actor_programme foreign key (programme_uid) references programme (uid);
   alter table programme_actor add constraint fk_programme_actor_person foreign key (person_uid) references person (uid);
+
+  create table log_request
+  (
+    uid serial primary key not null,
+    path varchar(256) not null,
+    execution_time integer not null,
+    remote_ip varchar(100) not null,
+    user_agent varchar(256) not null,
+    created_time timestamp not null default current_timestamp
+  );
 end;

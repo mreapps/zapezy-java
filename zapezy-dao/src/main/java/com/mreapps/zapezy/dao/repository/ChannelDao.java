@@ -9,4 +9,6 @@ public interface ChannelDao extends GenericDao<Channel>
     Channel findByChannelId(String channelId);
 
     List<Channel> listChannels();
+
+    List<Channel> listChannelsWithWebtv();
 }

@@ -1,239 +1,124 @@
 package com.mreapps.zapezy.service.service.impl;
 
-import com.mreapps.zapezy.dao.entity.common.LanguageCode;
-import com.mreapps.zapezy.dao.entity.common.LanguageString;
-import com.mreapps.zapezy.dao.entity.tv.Channel;
-import com.mreapps.zapezy.dao.entity.tv.Person;
-import com.mreapps.zapezy.dao.entity.tv.Programme;
-import com.mreapps.zapezy.dao.repository.ChannelDao;
-import com.mreapps.zapezy.dao.repository.PersonDao;
-import com.mreapps.zapezy.dao.repository.ProgrammeDao;
 import com.mreapps.zapezy.service.service.EpgService;
-import com.mreapps.zapezy.service.xmlbeans.xmltv.Credits;
-import com.mreapps.zapezy.service.xmlbeans.xmltv.Lstring;
+import com.mreapps.zapezy.service.service.ProgrammeImportService;
+import com.mreapps.zapezy.service.xmlbeans.xmltv.Programme;
 import com.mreapps.zapezy.service.xmlbeans.xmltv.Tv;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.ParameterizedType;
 import java.net.URL;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.Collection;
 import java.util.zip.GZIPInputStream;
 
 @Service
 @Transactional(readOnly = true)
 public class EpgServiceImpl implements EpgService
 {
-    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
-    private static final DateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyyMMddHHmmss Z");
-
     @Autowired
-    private PersonDao personDao;
-
-    @Autowired
-    private ChannelDao channelDao;
-
-    @Autowired
-    private ProgrammeDao programmeDao;
-
-    @Override
-    public int refreshChannels() throws IOException, JAXBException
-    {
-        String urlAsString = "http://data.epg.no/xmltv/channels.xml.gz";
-        Tv tv = downloadAndUnmarshal(urlAsString);
-
-        int channelCount = 0;
-        for (com.mreapps.zapezy.service.xmlbeans.xmltv.Channel xmlChannel : tv.getChannel())
-        {
-            Channel channel = channelDao.findByChannelId(xmlChannel.getId());
-            if(channel == null)
-            {
-                channel = new Channel();
-                channel.setChannelId(xmlChannel.getId());
-            }
-            channel.setChannelNameShort(xmlChannel.getDisplayName());
-            channel.setChannelNameFull(xmlChannel.getDisplayName());
-            channel.setEpgBaseUrl(xmlChannel.getUrl());
-
-            channelDao.store(channel);
-            channelCount++;
-        }
-        return channelCount;
-    }
+    private ProgrammeImportService programmeImportService;
 
     @Override
     @Transactional(readOnly = false)
-    public int refreshProgrammesForChannel(Channel channel, int noOfDays) throws IOException, JAXBException
+    public int refreshEpg() throws IOException, JAXBException
     {
-        try
+        String[] urls = {
+                "http://www.xmltvepg.be/rytecxmltvnordic.gz",
+                "http://www.world-of-satellite.com/epg_data/rytecxmltvnordic.gz",
+                "http://www.xmltvepg.nl/rytecxmltvnordic.gz",
+                "http://www.tm800hd.co.uk/rytec/rytecxmltvnordic.gz",
+                "http://rytec.tman.nl/rytecxmltvnordic.gz"
+        };
+
+        final Counter counter = new Counter();
+        for (String urlAsString : urls)
         {
-            int programmeCount = 0;
-            Calendar today = Calendar.getInstance();
-            for (int i = 0; i < noOfDays; i++)
+            try
             {
-                String dateAsString = DATE_FORMAT.format(today.getTime());
-
-//                programmeDao.deleteProgrammesForDay(channel, today.getTime());
-
-                // example url: http://data.epg.no/xmltv/action.canalplus.no_2013-06-18.xml.gz
-                String urlAsString = channel.getEpgBaseUrl() + channel.getChannelId() + "_" + dateAsString + ".xml.gz";
-
-                Tv tv = downloadAndUnmarshal(urlAsString);
-                for (com.mreapps.zapezy.service.xmlbeans.xmltv.Programme xmlProgramme : tv.getProgramme())
+                downloadAndUnmarshal(urlAsString, new ParsingCallback<Programme>()
                 {
-                    List<Person> actors = getActors(xmlProgramme.getCredits());
-                    List<Person> directors = getDirectors(xmlProgramme.getCredits());
-//                    xmlProgramme.getCategory();
-//                    xmlProgramme.getEpisodeNum();
-                    final Date start = StringUtils.isBlank(xmlProgramme.getStart()) ? null : DATE_TIME_FORMAT.parse(xmlProgramme.getStart());
-                    final Date stop = StringUtils.isBlank(xmlProgramme.getStop()) ? null : DATE_TIME_FORMAT.parse(xmlProgramme.getStop());
-
-//                    xmlProgramme.getLength();
-//                    xmlProgramme.getCountry();
-//                    xmlProgramme.getLanguage();
-//                    xmlProgramme.getOrigLanguage();
-//                    xmlProgramme.getIcon();
-//                    xmlProgramme.getUrl();
-//                    xmlProgramme.getVideo();
-//                    xmlProgramme.getAudio();
-//                    xmlProgramme.getPreviouslyShown();
-//                    xmlProgramme.getPremiere();
-//                    xmlProgramme.getLastChance();
-//                    xmlProgramme.getNew();
-//                    xmlProgramme.getSubtitles();
-//                    xmlProgramme.getRating();
-//                    xmlProgramme.getStarRating();
-//                    xmlProgramme.getPdcStart();
-//                    xmlProgramme.getVpsStart();
-//                    xmlProgramme.getShowview();
-//                    xmlProgramme.getVideoplus();
-//                    xmlProgramme.getChannel();
-//                    xmlProgramme.getClumpidx();
-
-                    Programme programme = programmeDao.findProgramme(channel, start);
-                    if (programme == null)
+                    @Override
+                    public void processEntitites(Collection<Programme> programmes)
                     {
-                        programme = new Programme();
-                        programme.setChannel(channel);
-                        programme.setStart(start);
+                        counter.count += programmeImportService.storeProgrammes(programmes);
                     }
-                    programme.setStop(stop);
-                    updateLanguageString(programme.getTitle(), xmlProgramme.getTitle());
-                    updateLanguageString(programme.getSubTitle(), xmlProgramme.getSubTitle());
-                    updateLanguageString(programme.getDescription(), xmlProgramme.getDesc());
-                    programme.setDate(xmlProgramme.getDate());
-                    programme.getDirectors().addAll(directors);
-                    programme.getActors().addAll(actors);
-
-                    programmeDao.store(programme);
-                    programmeCount++;
-                }
-
-                today.add(Calendar.DAY_OF_YEAR, 1);
-            }
-            return programmeCount;
-        } catch (ParseException e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void updateLanguageString(LanguageString languageString, List<Lstring> xmlStrings)
-    {
-        if (xmlStrings != null)
-        {
-            for (Lstring xmlString : xmlStrings)
+                }, 250);
+            } catch (IOException e)
             {
-                languageString.setText(xmlString.getValue(), LanguageCode.valueByCode(xmlString.getLang()));
+                // try next url
             }
         }
+        return counter.count;
     }
 
-    private List<Person> getActors(Credits credits)
-    {
-        List<Person> persons = new ArrayList<Person>();
-        if (credits != null && credits.getActor() != null)
-        {
-            for (String name : credits.getActor())
-            {
-                if (StringUtils.isNotBlank(name))
-                {
-                    Person person = personDao.findPerson(name);
-                    if (person == null)
-                    {
-                        person = new Person();
-                        person.setName(name);
-                        person = personDao.store(person);
-                    }
-                    persons.add(person);
-                }
-            }
-        }
-        return persons;
-    }
-
-    private List<Person> getDirectors(Credits credits)
-    {
-        List<Person> persons = new ArrayList<Person>();
-        if (credits != null && credits.getDirector() != null)
-        {
-            for (String name : credits.getDirector())
-            {
-                if (StringUtils.isNotBlank(name))
-                {
-                    Person person = personDao.findPerson(name);
-                    if (person == null)
-                    {
-                        person = new Person();
-                        person.setName(name);
-                        person = personDao.store(person);
-                    }
-                    persons.add(person);
-                }
-            }
-        }
-        return persons;
-    }
-
-    private String getValue(List<Lstring> lstrings, String languageCode)
-    {
-        if (lstrings != null)
-        {
-            for (Lstring lstring : lstrings)
-            {
-                if (lstring.getLang().equalsIgnoreCase(languageCode))
-                {
-                    return lstring.getValue();
-                }
-            }
-        }
-        return "";
-    }
-
-    private <T> T downloadAndUnmarshal(String urlAsString) throws IOException, JAXBException
+    private <T> void downloadAndUnmarshal(String urlAsString, final ParsingCallback<T> parsingCallback, final int bufferSize) throws IOException, JAXBException
     {
         URL url = new URL(urlAsString);
         InputStream inputStream = null;
         try
         {
-            inputStream = url.openStream();
+            inputStream = new GZIPInputStream(url.openStream());
 
-            JAXBContext jc = JAXBContext.newInstance(Tv.class.getPackage().getName());
-            Unmarshaller unmarshaller = jc.createUnmarshaller();
-            //noinspection unchecked
-            return (T) unmarshaller.unmarshal(new GZIPInputStream(inputStream));
+            JAXBContext context = JAXBContext.newInstance("com.mreapps.zapezy.service.xmlbeans.xmltv");
+
+            Unmarshaller unmarshaller = context.createUnmarshaller();
+
+            final Collection<T> buffer = new ArrayList<T>();
+            @SuppressWarnings("unchecked") final Class<T> entityClass = (Class<T>) ((ParameterizedType) parsingCallback.getClass().getGenericInterfaces()[0]).getActualTypeArguments()[0];
+            unmarshaller.setListener(new Unmarshaller.Listener()
+            {
+                @Override
+                public void afterUnmarshal(Object target, Object parent)
+                {
+                    if (entityClass.isInstance(target))
+                    {
+                        //noinspection unchecked
+                        buffer.add((T) target);
+                        if (buffer.size() >= bufferSize)
+                        {
+                            parsingCallback.processEntitites(buffer);
+                            buffer.clear();
+                            if (parent instanceof Tv)
+                            {
+                                Tv tv = (Tv) parent;
+                                tv.getProgramme().clear();
+                            }
+                        }
+                    }
+
+                    if (target instanceof Tv && !buffer.isEmpty())
+                    {
+                        parsingCallback.processEntitites(buffer);
+                    }
+                }
+            });
+
+            // create a new XML parser
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            factory.setNamespaceAware(true);
+            XMLReader reader = factory.newSAXParser().getXMLReader();
+            reader.setContentHandler(unmarshaller.getUnmarshallerHandler());
+
+            reader.parse(new InputSource(inputStream));
+        } catch (SAXException e)
+        {
+            throw new RuntimeException(e);
+        } catch (ParserConfigurationException e)
+        {
+            throw new RuntimeException(e);
         } finally
         {
             if (inputStream != null)
@@ -241,5 +126,15 @@ public class EpgServiceImpl implements EpgService
                 inputStream.close();
             }
         }
+    }
+
+    private interface ParsingCallback<T>
+    {
+        void processEntitites(Collection<T> ts);
+    }
+
+    private class Counter
+    {
+        int count;
     }
 }

@@ -1,4 +1,4 @@
-package com.mreapps.zapezy.web.model.user;
+package com.mreapps.zapezy.web.bean.user;
 
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.Length;
@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @SuppressWarnings("UnusedDeclaration")
-public class RegisterUserBean
+public class NewUserBean
 {
     @NotNull
     @NotEmpty

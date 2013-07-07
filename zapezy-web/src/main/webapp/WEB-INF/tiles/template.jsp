@@ -2,42 +2,82 @@
 <%@ taglib prefix="tiles" uri="http://tiles.apache.org/tags-tiles" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 
+<%
+    String language = response.getLocale().getLanguage();
+%>
 <html>
 <head>
-    <title>zapezy.com - webtv done easy</title>
-    <link rel="icon" type="image/gif" href="resources/favicon.ico">
-    <link rel="stylesheet" href="<spring:theme code="css"/>" type="text/css" />
+    <title>zapezy.com - <spring:message code="slogan"/></title>
+    <link rel="icon" type="image/gif" href="resources/favicon.ico"/>
+    <link rel="stylesheet" href="resources/css/main.css" type="text/css"/>
+    <link rel="stylesheet" href="resources/css/stylized.css" type="text/css"/>
+    <link rel="stylesheet" href="<spring:theme code="css"/>" type="text/css"/>
+    <%--<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/redmond/jquery-ui.min.css" type="text/css"/>--%>
+    <%--<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/pepper-grinder/jquery-ui.min.css" type="text/css"/>--%>
+    <link rel="stylesheet" href="http://cdn.wijmo.com/themes/cobalt/jquery-wijmo.css" type="text/css"/>
     <tiles:insertAttribute name="meta"/>
-    <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript" src="http://code.jquery.com/ui/1.10.3/jquery-ui.min.js"></script>
 </head>
 <body>
+<div id="wrapper">
+    <div id="header">
+        <img src="resources/image/tv.png"/>
 
-<div id="header">
-    <h1><tiles:insertAttribute name="header" defaultValue=""/></h1>
-    <span style="float: right">
-    <a href="?lang=en">en</a>
-    |
-    <a href="?lang=no">no</a>
+        <h1>zapezy.com</h1>
 
-    <span style="float: left">
-    <a href="?theme=default">default</a>
-    |
-    <a href="?theme=dark">dark</a>
-</span>
-</span>
-</div>
-<div id="body">
-    <c:if test="${infoMessage != null}">
-        <span class="infoMessage">${infoMessage}</span>
-    </c:if>
-    <c:if test="${errorMessage != null}">
-        <span class="errorMessage">${errorMessage}</span>
-    </c:if>
-    <tiles:insertAttribute name="body"/>
-</div>
-<div id="footer">
-    <h3><tiles:insertAttribute name="footer"/></h3>
+        <h2>::<spring:message code="slogan"/></h2>
+
+        <div id="menu">
+            <ul>
+                <!-- todo dynamic menu -->
+                <li class="selected"><a href="home">Home</a></li>
+                <li><a href="tvscreen">TV-screen</a></li>
+                <sec:authorize access="isAnonymous()">
+                    <li><a href="signIn"><spring:message code="label.sign_in"/> </a></li>
+                </sec:authorize>
+                <sec:authorize access="isAuthenticated()">
+                    <li><a href="<c:url value="/j_spring_security_logout" />"><spring:message code="label.sign_out"/></a></li>
+                </sec:authorize>
+            </ul>
+        </div>
+        <div id="language_selection">
+            <ul>
+                <%
+                    if (language != null && language.equals("en"))
+                    {
+                %>
+                <li><a href="?lang=no"><img class="flag" src="resources/image/flag_norway_bw.png"/></a></li>
+                <li><a href="?lang=en"><img class="flag" src="resources/image/flag_united_kingdom.png"/></a></li>
+                <%
+                } else
+                {
+                %>
+                <li><a href="?lang=no"><img class="flag" src="resources/image/flag_norway.png"/></a></li>
+                <li><a href="?lang=en"><img class="flag" src="resources/image/flag_united_kingdom_bw.png"/></a></li>
+                <%
+                    }
+                %>
+            </ul>
+        </div>
+    </div>
+    <div id="content">
+        <c:if test="${STATUS_MESSAGE != null}">
+            <div class="${STATUS_MESSAGE.type.name().toLowerCase()}">
+                ${STATUS_MESSAGE.message}
+                    <c:if test="${STATUS_MESSAGE.url != null}">
+                        <a href="${STATUS_MESSAGE.url}">${STATUS_MESSAGE.urlText}</a>
+                    </c:if>
+            </div>
+        </c:if>
+        <tiles:insertAttribute name="body"/>
+    </div>
+    <div id="footer">
+        zapezy.com :: &copy;mreapps.com
+    </div>
 </div>
 </body>
 </html>

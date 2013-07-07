@@ -11,12 +11,18 @@ import java.security.Principal;
 public class HomeController
 {
     @RequestMapping(value = "/")
+    public String root(ModelMap model, Principal principal, RedirectAttributes redirectAttributes)
+    {
+        return home(model, principal, redirectAttributes);
+    }
+
+    @RequestMapping(value = "/home")
     public String home(ModelMap model, Principal principal, RedirectAttributes redirectAttributes)
     {
         String name = principal == null ? "Anonymous" : principal.getName();
         model.addAttribute("username", name);
         model.addAttribute("message", "Spring Security Custom Form example");
 
-        return "common/home";
+        return "/home.jsp";
     }
 }
