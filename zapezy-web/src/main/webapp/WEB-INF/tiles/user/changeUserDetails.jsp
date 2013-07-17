@@ -16,8 +16,8 @@
     });
 </script>
 
-<spring:message code="user.edit_user_details"/>
-<form:form method="post" commandName="userDetailBean" action="_changeUserDetails.html">
+<form:form method="post" commandName="userDetailBean" action="_changeUserDetails.html" cssClass="eform">
+    <h1><spring:message code="user.edit_user_details"/></h1>
     <table>
         <tr>
             <td><form:label path="firstname"><spring:message code="label.firstname"/></form:label></td>

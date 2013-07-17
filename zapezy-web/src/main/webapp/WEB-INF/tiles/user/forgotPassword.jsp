@@ -1,8 +1,9 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
-<spring:message code="type_email_address_to_reset_password"/>
-<form:form method="post" commandName="passwordBean" action="sendResetPasswordToken.html">
+<form:form method="post" commandName="passwordBean" action="sendResetPasswordToken.html" cssClass="eform">
+    <h1><spring:message code="label.forgot_password"/></h1>
+    <spring:message code="type_email_address_to_reset_password"/>
     <table>
         <tr>
             <td><form:label path="email"><spring:message code="label.email"/></form:label></td>

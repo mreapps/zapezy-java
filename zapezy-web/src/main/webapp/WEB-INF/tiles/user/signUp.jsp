@@ -1,7 +1,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
-<form:form method="post" commandName="newUser" action="registerNewUser.html">
-
+<form:form method="post" commandName="newUser" action="registerNewUser.html" cssClass="eform">
+    <h1><spring:message code="label.register_user"/></h1>
     <table>
         <tr>
             <td><form:label path="email"><spring:message code="label.email"/></form:label></td>

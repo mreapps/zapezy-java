@@ -13,6 +13,7 @@
     <title>zapezy.com - <spring:message code="slogan"/></title>
     <link rel="icon" type="image/gif" href="resources/favicon.ico"/>
     <link rel="stylesheet" href="resources/css/main.css" type="text/css"/>
+    <link rel="stylesheet" href="resources/css/form.css" type="text/css"/>
     <link rel="stylesheet" href="resources/css/stylized.css" type="text/css"/>
     <link rel="stylesheet" href="<spring:theme code="css"/>" type="text/css"/>
     <%--<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/redmond/jquery-ui.min.css" type="text/css"/>--%>
@@ -41,6 +42,7 @@
                 </sec:authorize>
                 <sec:authorize access="isAuthenticated()">
                     <li><a href="<c:url value="/j_spring_security_logout" />"><spring:message code="label.sign_out"/></a></li>
+                    <li><a href="<c:url value="/changeUserDetails" />"><spring:message code="label.user_details"/></a></li>
                 </sec:authorize>
             </ul>
         </div>
