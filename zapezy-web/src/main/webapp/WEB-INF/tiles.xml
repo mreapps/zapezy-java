@@ -4,12 +4,16 @@
 <tiles-definitions>
 
     <definition name="base" template="/WEB-INF/tiles/template.jsp">
-    <put-attribute name="meta" value="/WEB-INF/tiles/common/meta.jsp" />
-    <put-attribute name="footer" value="/WEB-INF/tiles/common/footer.jsp" />
+        <put-attribute name="meta" value="/WEB-INF/tiles/common/meta.jsp"/>
+        <put-attribute name="footer" value="/WEB-INF/tiles/common/footer.jsp"/>
+    </definition>
+
+    <definition name="tv/tvscreen.jsp" template="/WEB-INF/tiles/blank.jsp">
+        <put-attribute name="page" value="/WEB-INF/tiles/tv/tvscreen.jsp"/>
     </definition>
 
     <definition name="*/*" extends="base">
-    <put-attribute name="body" value="/WEB-INF/tiles/{1}/{2}" />
+        <put-attribute name="body" value="/WEB-INF/tiles/{1}/{2}"/>
     </definition>
 
 </tiles-definitions>

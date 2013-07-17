@@ -10,6 +10,6 @@ public class TvScreenController
     @RequestMapping(value = "tvscreen", method = RequestMethod.GET)
     public String tvscreen()
     {
-        return "tvscreen.jsp";
+        return "tv/tvscreen.jsp";
     }
 }
