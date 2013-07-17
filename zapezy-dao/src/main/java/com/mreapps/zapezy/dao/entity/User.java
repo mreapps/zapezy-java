@@ -14,6 +14,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import java.util.Date;
 
+@SuppressWarnings("UnusedDeclaration")
 @Entity
 @Table(name = "users")
 public class User extends AbstractBaseEntity
@@ -41,6 +42,15 @@ public class User extends AbstractBaseEntity
 
     @Column(name = "role")
     private String roleAsString;
+
+    @Column(name = "fb_id", length = 100)
+    private String facebookId;
+
+    @Column(name = "fb_access_token", length = 256)
+    private String facebookAccessToken;
+
+    @Column(name = "fb_access_token_expires")
+    private Date facebookAccessTokenExpires;
 
     @Column(name = "firstname", length = 100)
     private String firstname;
@@ -188,5 +198,35 @@ public class User extends AbstractBaseEntity
     public void setImage(BlobFile image)
     {
         this.image = image;
+    }
+
+    public String getFacebookId()
+    {
+        return facebookId;
+    }
+
+    public void setFacebookId(String facebookId)
+    {
+        this.facebookId = facebookId;
+    }
+
+    public String getFacebookAccessToken()
+    {
+        return facebookAccessToken;
+    }
+
+    public void setFacebookAccessToken(String facebookAccessToken)
+    {
+        this.facebookAccessToken = facebookAccessToken;
+    }
+
+    public Date getFacebookAccessTokenExpires()
+    {
+        return facebookAccessTokenExpires;
+    }
+
+    public void setFacebookAccessTokenExpires(Date facebookAccessTokenExpires)
+    {
+        this.facebookAccessTokenExpires = facebookAccessTokenExpires;
     }
 }

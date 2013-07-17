@@ -22,6 +22,7 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -332,7 +333,6 @@ public class UserController
 
     /*
     TODO Change email address
-    TODO Sign in with facebook
     TODO Deactivate non activated users
     TODO Clear password reset tokens not used
     TODO Invite user
@@ -342,8 +342,9 @@ public class UserController
     {
         try
         {
+            UserDetails userDetails = userService.loadUserByUsername(username);
             // Must be called from request filtered by Spring Security, otherwise SecurityContextHolder is not updated
-            UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, "");
+            UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(userDetails, "");
             token.setDetails(new WebAuthenticationDetails(request));
             Authentication authentication = this.autoLoginProvider.authenticate(token);
             logger.debug("Logging in with [" + authentication.getPrincipal() + "]");

@@ -10,7 +10,7 @@ begin;
     reset_password_token varchar(100),
     reset_password_token_created_at timestamp,
     role varchar(20) not null,
-    fb_id int8,
+    fb_id varchar(100),
     fb_access_token varchar(256),
     fb_access_token_expires timestamp,
     firstname varchar(100),

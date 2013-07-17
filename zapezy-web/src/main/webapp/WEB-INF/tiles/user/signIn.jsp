@@ -7,6 +7,7 @@
     });
 </script>
 
+<%--suppress XmlPathReference --%>
 <form id="login_form" name="f" action="<c:url value='j_spring_security_check' />" method='POST'>
     <table>
         <tr>
@@ -31,4 +32,5 @@
     </table>
     <a href="signUp">Register new user</a>
     <a href="forgotPassword">Forgotten password</a>
+    <a href="social/facebook/signin">Sign in with facebook</a>
 </form>

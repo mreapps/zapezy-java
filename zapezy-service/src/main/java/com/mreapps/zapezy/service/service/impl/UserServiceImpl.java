@@ -1,5 +1,6 @@
 package com.mreapps.zapezy.service.service.impl;
 
+import com.mreapps.zapezy.dao.entity.Gender;
 import com.mreapps.zapezy.dao.entity.Role;
 import com.mreapps.zapezy.dao.entity.User;
 import com.mreapps.zapezy.dao.repository.UserDao;
@@ -13,12 +14,10 @@ import com.mreapps.zapezy.service.service.UserService;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.dao.SaltSource;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,10 +27,8 @@ import java.util.Locale;
 
 @Service
 @Transactional(readOnly = true)
-public class UserServiceImpl implements UserService, UserDetailsService
+public class UserServiceImpl implements UserService
 {
-    private static Logger logger = Logger.getLogger(UserServiceImpl.class);
-
     @Autowired
     private UserDao userDao;
 
@@ -46,6 +43,46 @@ public class UserServiceImpl implements UserService, UserDetailsService
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Override
+    @Transactional(readOnly = false)
+    public void registerNewUserWithoutAuthentication(String email, String firstname, String lastname, Date birthday, Gender gender)
+    {
+        Validate.notNull(email);
+
+        email = email.toLowerCase();
+
+        User existing = userDao.getByEmail(email);
+        if (existing != null)
+        {
+            throw new IllegalArgumentException("email address " + email + " is already in use");
+        }
+
+        User newUser = new User();
+        newUser.setEmail(email);
+        newUser.setPassword("");
+        newUser.setActivatedAt(new Date());
+        newUser.setRole(Role.USER);
+        newUser.setFirstname(firstname);
+        newUser.setLastname(lastname);
+        newUser.setBirthday(birthday);
+        newUser.setGender(gender);
+
+        userDao.store(newUser);
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void storeFacebookInfo(String email, String facebookId, String facebookAccessToken, Date facebookAccessTokenExpires)
+    {
+        User user = userDao.getByEmail(email);
+
+        user.setFacebookId(facebookId);
+        user.setFacebookAccessToken(facebookAccessToken);
+        user.setFacebookAccessTokenExpires(facebookAccessTokenExpires);
+
+        userDao.store(user);
+    }
 
     @Override
     @Transactional(readOnly = false)
@@ -66,7 +103,7 @@ public class UserServiceImpl implements UserService, UserDetailsService
         newUser.setEmail(email);
         newUser.setPassword("");
         newUser.setActivationToken(RandomStringUtils.randomAlphanumeric(50));
-        newUser.setRole(Role.UNVERIFIED_USER);
+        newUser.setRole(Role.USER);
 
         newUser = userDao.store(newUser);
 
@@ -114,6 +151,13 @@ public class UserServiceImpl implements UserService, UserDetailsService
     }
 
     @Override
+    public boolean isEmailRegistered(String email)
+    {
+        assert email != null;
+        return userDao.getByEmail(email) != null;
+    }
+
+    @Override
     public StatusMessage resendActivationToken(String email, String urlPrefix, Locale locale)
     {
         User user = userDao.getByEmail(email);
@@ -140,19 +184,10 @@ public class UserServiceImpl implements UserService, UserDetailsService
             if (user != null)
             {
                 String encryptedPassword = encryptPassword(email, password);
-                return encryptedPassword.equals(user.getPassword());
+                return StringUtils.isBlank(user.getPassword()) || encryptedPassword.equals(user.getPassword());
             }
         }
         return false;
-    }
-
-    @Override
-    public Role getUserRole(String email)
-    {
-        assert email != null;
-
-        User user = userDao.getByEmail(email);
-        return user == null ? null : user.getRole();
     }
 
     @Override
@@ -166,6 +201,13 @@ public class UserServiceImpl implements UserService, UserDetailsService
     public String getEmailByResetPasswordToken(String resetPasswordToken)
     {
         User user = userDao.getByResetPasswordToken(resetPasswordToken);
+        return user == null ? null : user.getEmail();
+    }
+
+    @Override
+    public String getEmailByFacebookId(String facebookId)
+    {
+        User user = userDao.getByFacebookId(facebookId);
         return user == null ? null : user.getEmail();
     }
 

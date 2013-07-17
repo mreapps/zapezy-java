@@ -13,4 +13,6 @@ public interface UserDao extends GenericDao<User>
     User getByActivationToken(String activationToken);
 
     User getByResetPasswordToken(String resetPasswordToken);
+
+    User getByFacebookId(String facebookId);
 }
