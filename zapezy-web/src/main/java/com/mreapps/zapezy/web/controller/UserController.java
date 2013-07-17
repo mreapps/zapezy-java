@@ -86,7 +86,7 @@ public class UserController
         if (principal != null)
         {
             redirectAttributes.addFlashAttribute("STATUS_MESSAGE", new StatusMessage(StatusMessageType.ERROR, messageSourceService.get("this_page_is_only_accessible_when_not_signed_in", locale)));
-            return new ModelAndView("redirect:/");
+            return new ModelAndView("/home.jsp");
         }
         return new ModelAndView("user/signUp.jsp", "newUser", new NewUserBean());
     }
@@ -97,7 +97,7 @@ public class UserController
         if (principal != null)
         {
             redirectAttributes.addFlashAttribute("STATUS_MESSAGE", new StatusMessage(StatusMessageType.ERROR, messageSourceService.get("this_page_is_only_accessible_when_not_signed_in", locale)));
-            return "redirect:/";
+            return "/home.jsp";
         }
 
         newUserValidator.validate(newUser, result);
@@ -154,7 +154,7 @@ public class UserController
         if (principal != null)
         {
             redirectAttributes.addFlashAttribute("STATUS_MESSAGE", new StatusMessage(StatusMessageType.ERROR, messageSourceService.get("this_page_is_only_accessible_when_not_signed_in", locale)));
-            return "redirect:/";
+            return "/home.jsp";
         }
         return "user/signIn.jsp";
     }
@@ -165,7 +165,7 @@ public class UserController
         if (principal != null)
         {
             redirectAttributes.addFlashAttribute("STATUS_MESSAGE", new StatusMessage(StatusMessageType.ERROR, messageSourceService.get("this_page_is_only_accessible_when_not_signed_in", locale)));
-            return "redirect:/";
+            return "/home.jsp";
         }
         redirectAttributes.addFlashAttribute("STATUS_MESSAGE", new StatusMessage(StatusMessageType.ERROR, messageSourceService.get("login.failed", locale)));
         return "redirect:/signIn";
@@ -185,7 +185,7 @@ public class UserController
         if (principal != null)
         {
             redirectAttributes.addFlashAttribute("STATUS_MESSAGE", new StatusMessage(StatusMessageType.ERROR, messageSourceService.get("this_page_is_only_accessible_when_not_signed_in", locale)));
-            return new ModelAndView("redirect:/");
+            return new ModelAndView("/home.jsp");
         }
         return new ModelAndView("user/forgotPassword.jsp", "passwordBean", new ForgotPasswordBean());
     }
@@ -196,7 +196,7 @@ public class UserController
         if (principal != null)
         {
             redirectAttributes.addFlashAttribute("STATUS_MESSAGE", new StatusMessage(StatusMessageType.ERROR, messageSourceService.get("this_page_is_only_accessible_when_not_signed_in", locale)));
-            return "redirect:/";
+            return "/home.jsp";
         }
         if (result.hasErrors())
         {
@@ -217,7 +217,7 @@ public class UserController
         if (principal != null)
         {
             redirectAttributes.addFlashAttribute("STATUS_MESSAGE", new StatusMessage(StatusMessageType.ERROR, messageSourceService.get("this_page_is_only_accessible_when_not_signed_in", locale)));
-            return "redirect:/";
+            return "/home.jsp";
         }
         String email = userService.getEmailByResetPasswordToken(code);
         if (email != null)
@@ -239,7 +239,7 @@ public class UserController
         if (principal != null)
         {
             redirectAttributes.addFlashAttribute("STATUS_MESSAGE", new StatusMessage(StatusMessageType.ERROR, messageSourceService.get("this_page_is_only_accessible_when_not_signed_in", locale)));
-            return "redirect:/";
+            return "/home.jsp";
         }
         resetPasswordValidator.validate(passwordBean, result);
         if (result.hasErrors())
@@ -333,7 +333,6 @@ public class UserController
     /*
     TODO Change email address
     TODO Sign in with facebook
-    TODO Remember me
     TODO Deactivate non activated users
     TODO Clear password reset tokens not used
     TODO Invite user

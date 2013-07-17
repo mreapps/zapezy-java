@@ -11,17 +11,31 @@
     <security:global-method-security pre-post-annotations="enabled" secured-annotations="enabled"/>
 
     <security:http auto-config="true" use-expressions="true" access-denied-page="/accessDenied">
-        <!--<intercept-url pattern="/**" access="permitAll"/>-->
         <sec:form-login
                 login-page="/signIn"
-                default-target-url="/"
+                default-target-url="/home"
                 authentication-failure-url="/signInFailed"
                 />
-        <security:logout logout-success-url="/signOut"/>
+        <security:logout logout-success-url="/signIn" />
+        <security:remember-me
+                key="zapezyRememberMeKey"
+                token-validity-seconds="864000"
+                user-service-ref="userServiceImpl"
+                />
     </security:http>
 
+    <bean class="org.springframework.security.authentication.encoding.ShaPasswordEncoder" id="passwordEncoder">
+        <constructor-arg index="0" value="512" />
+    </bean>
+
+    <bean class="com.mreapps.zapezy.service.service.impl.SaltSourceImpl" id="saltSource"/>
+
     <security:authentication-manager>
-        <security:authentication-provider ref="defaultAuthenticationProvider"/>
+        <security:authentication-provider user-service-ref="userServiceImpl">
+            <security:password-encoder ref="passwordEncoder">
+                <security:salt-source ref="saltSource"/>
+            </security:password-encoder>
+        </security:authentication-provider>
     </security:authentication-manager>
 
 </beans>

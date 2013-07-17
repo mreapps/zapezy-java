@@ -19,6 +19,12 @@
         </tr>
         <tr>
             <td colspan="2">
+                <label for="j_remember">Remember Me</label>
+                <input id="j_remember" name="_spring_security_remember_me" type="checkbox" />
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
                 <input name="submit" type="submit" value="<spring:message code="label.sign_in"/>"/>
             </td>
         </tr>

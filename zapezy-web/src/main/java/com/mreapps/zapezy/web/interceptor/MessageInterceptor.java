@@ -1,5 +1,6 @@
 package com.mreapps.zapezy.web.interceptor;
 
+import com.mreapps.zapezy.service.entity.DefaultUserDetails;
 import com.mreapps.zapezy.service.entity.StatusMessage;
 import com.mreapps.zapezy.service.entity.StatusMessageType;
 import com.mreapps.zapezy.service.service.MessageSourceService;
@@ -27,9 +28,10 @@ public class MessageInterceptor extends HandlerInterceptorAdapter
         if(modelAndView != null)
         {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if(auth != null && auth.getPrincipal() != null && !auth.getPrincipal().equals("anonymousUser"))
+            if(auth != null && auth.getPrincipal() instanceof DefaultUserDetails)
             {
-                if(!userService.isActivated(auth.getPrincipal().toString()))
+                DefaultUserDetails userDetails = (DefaultUserDetails)auth.getPrincipal();
+                if(!userService.isActivated(userDetails.getUsername()))
                 {
                     StatusMessage statusMessage = new StatusMessage(StatusMessageType.WARNING, messageSourceService.get("user_is_not_activated", request.getLocale()));
                     statusMessage.setUrl("resendActivationToken");

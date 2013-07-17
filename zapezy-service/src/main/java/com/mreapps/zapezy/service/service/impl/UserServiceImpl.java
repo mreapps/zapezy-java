@@ -3,6 +3,7 @@ package com.mreapps.zapezy.service.service.impl;
 import com.mreapps.zapezy.dao.entity.Role;
 import com.mreapps.zapezy.dao.entity.User;
 import com.mreapps.zapezy.dao.repository.UserDao;
+import com.mreapps.zapezy.service.entity.DefaultUserDetails;
 import com.mreapps.zapezy.service.entity.StatusMessage;
 import com.mreapps.zapezy.service.entity.StatusMessageType;
 import com.mreapps.zapezy.service.entity.UserDetailBean;
@@ -14,8 +15,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
-import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
+import org.springframework.security.authentication.dao.SaltSource;
+import org.springframework.security.authentication.encoding.PasswordEncoder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +28,7 @@ import java.util.Locale;
 
 @Service
 @Transactional(readOnly = true)
-public class UserServiceImpl implements UserService
+public class UserServiceImpl implements UserService, UserDetailsService
 {
     private static Logger logger = Logger.getLogger(UserServiceImpl.class);
 
@@ -37,6 +41,12 @@ public class UserServiceImpl implements UserService
     @Autowired
     private MessageSourceService messageSourceService;
 
+    @Autowired
+    private SaltSource saltSource;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
     @Transactional(readOnly = false)
     public synchronized void registerNewUser(String email, String password, String urlPrefix, Locale locale)
@@ -46,8 +56,6 @@ public class UserServiceImpl implements UserService
 
         email = email.toLowerCase();
 
-        // TODO validering av bruker og passord
-
         User existing = userDao.getByEmail(email);
         if (existing != null)
         {
@@ -56,10 +64,13 @@ public class UserServiceImpl implements UserService
 
         User newUser = new User();
         newUser.setEmail(email);
-        newUser.setPassword(encryptPassword(email, password));
+        newUser.setPassword("");
         newUser.setActivationToken(RandomStringUtils.randomAlphanumeric(50));
         newUser.setRole(Role.UNVERIFIED_USER);
 
+        newUser = userDao.store(newUser);
+
+        newUser.setPassword(encryptPassword(email, password));
         newUser = userDao.store(newUser);
 
         sendActivationToken(newUser, urlPrefix, locale);
@@ -79,15 +90,13 @@ public class UserServiceImpl implements UserService
     {
         User user = userDao.getByActivationToken(activationToken);
 
-        if(user == null)
+        if (user == null)
         {
             return new StatusMessage(StatusMessageType.ERROR, messageSourceService.get("unknown_activation_token", locale));
-        }
-        else if(user.getActivatedAt() != null)
+        } else if (user.getActivatedAt() != null)
         {
             return new StatusMessage(StatusMessageType.WARNING, messageSourceService.get("user_already_activated", locale));
-        }
-        else
+        } else
         {
             user.setActivatedAt(new Date());
             user.setRole(Role.USER);
@@ -108,15 +117,13 @@ public class UserServiceImpl implements UserService
     public StatusMessage resendActivationToken(String email, String urlPrefix, Locale locale)
     {
         User user = userDao.getByEmail(email);
-        if(user == null)
+        if (user == null)
         {
             return new StatusMessage(StatusMessageType.ERROR, messageSourceService.get("unknown_email_address_x", locale, email));
-        }
-        else if(user.getActivatedAt() != null)
+        } else if (user.getActivatedAt() != null)
         {
             return new StatusMessage(StatusMessageType.INFO, messageSourceService.get("user_already_activated", locale));
-        }
-        else
+        } else
         {
             sendActivationToken(user, urlPrefix, locale);
             return new StatusMessage(StatusMessageType.SUCCESS, messageSourceService.get("user_already_activated", locale));
@@ -170,11 +177,10 @@ public class UserServiceImpl implements UserService
 
         String subject = messageSourceService.get("send.reset.password.token.subject", locale);
         String message;
-        if(user == null)
+        if (user == null)
         {
             message = messageSourceService.get("send.reset.password.token.message.unknown.user", locale, urlPrefix);
-        }
-        else
+        } else
         {
             user.setResetPasswordToken(RandomStringUtils.randomAlphanumeric(50));
             user.setResetPasswordTokenCreatedAt(new Date());
@@ -189,7 +195,7 @@ public class UserServiceImpl implements UserService
     public String resetPassword(String resetPasswordToken, String password)
     {
         User user = userDao.getByResetPasswordToken(resetPasswordToken);
-        if(user != null)
+        if (user != null)
         {
             user.setPassword(encryptPassword(user.getEmail(), password));
             user.setResetPasswordTokenCreatedAt(null);
@@ -203,7 +209,7 @@ public class UserServiceImpl implements UserService
     public UserDetailBean getUserDetails(String email)
     {
         User user = userDao.getByEmail(email);
-        if(user != null)
+        if (user != null)
         {
             UserDetailBean userDetailBean = new UserDetailBean();
             userDetailBean.setFirstname(user.getFirstname());
@@ -221,7 +227,7 @@ public class UserServiceImpl implements UserService
     public StatusMessage storeUserDetails(String email, UserDetailBean userDetailBean, Locale locale)
     {
         User user = userDao.getByEmail(email);
-        if(user != null)
+        if (user != null)
         {
             user.setFirstname(userDetailBean.getFirstname());
             user.setLastname(userDetailBean.getLastname());
@@ -237,7 +243,7 @@ public class UserServiceImpl implements UserService
     @Transactional(readOnly = false)
     public StatusMessage changePassword(String email, String oldPassword, String newPassword, Locale locale)
     {
-        if(validateCredentials(email, oldPassword))
+        if (validateCredentials(email, oldPassword))
         {
             User user = userDao.getByEmail(email);
             user.setPassword(encryptPassword(user.getEmail(), newPassword));
@@ -249,10 +255,20 @@ public class UserServiceImpl implements UserService
 
     private String encryptPassword(String email, String password)
     {
-        final Md5PasswordEncoder md5Encoder = new Md5PasswordEncoder();
-        final String shaSalt = md5Encoder.encodePassword(email, null);
+        UserDetails userDetails = loadUserByUsername(email);
+        Object salt = saltSource.getSalt(userDetails);
+        return passwordEncoder.encodePassword(password, salt);
+    }
 
-        final ShaPasswordEncoder shaEncoder = new ShaPasswordEncoder(512);
-        return shaEncoder.encodePassword(password, shaSalt);
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException
+    {
+        final User user = userDao.getByEmail(username);
+        if (user == null)
+        {
+            return null;
+        }
+
+        return new DefaultUserDetails(user.getEmail(), user.getPassword(), user.getRole().getKey());
     }
 }
