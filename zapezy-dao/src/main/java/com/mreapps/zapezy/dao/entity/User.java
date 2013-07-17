@@ -1,9 +1,17 @@
 package com.mreapps.zapezy.dao.entity;
 
+import com.mreapps.zapezy.dao.entity.common.BlobFile;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import java.util.Date;
 
 @Entity
@@ -33,6 +41,23 @@ public class User extends AbstractBaseEntity
 
     @Column(name = "role")
     private String roleAsString;
+
+    @Column(name = "firstname", length = 100)
+    private String firstname;
+
+    @Column(name = "lastname", length = 100)
+    private String lastname;
+
+    @Column(name = "birthday")
+    @Temporal(TemporalType.DATE)
+    private Date birthday;
+
+    @Column(name = "gender", nullable = false)
+    private short genderAsShort = Gender.UNKNOWN.getId();
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "image_uid")
+    private BlobFile image;
 
     @PrePersist
     public void prePersist()
@@ -113,5 +138,55 @@ public class User extends AbstractBaseEntity
     public void setResetPasswordTokenCreatedAt(Date resetPasswordTokenCreatedAt)
     {
         this.resetPasswordTokenCreatedAt = resetPasswordTokenCreatedAt;
+    }
+
+    public String getFirstname()
+    {
+        return firstname;
+    }
+
+    public void setFirstname(String firstname)
+    {
+        this.firstname = firstname;
+    }
+
+    public String getLastname()
+    {
+        return lastname;
+    }
+
+    public void setLastname(String lastname)
+    {
+        this.lastname = lastname;
+    }
+
+    public Date getBirthday()
+    {
+        return birthday;
+    }
+
+    public void setBirthday(Date birthday)
+    {
+        this.birthday = birthday;
+    }
+
+    public Gender getGender()
+    {
+        return Gender.valueById(genderAsShort);
+    }
+
+    public void setGender(Gender gender)
+    {
+        this.genderAsShort = gender == null ? Gender.UNKNOWN.getId() : gender.getId();
+    }
+
+    public BlobFile getImage()
+    {
+        return image;
+    }
+
+    public void setImage(BlobFile image)
+    {
+        this.image = image;
     }
 }

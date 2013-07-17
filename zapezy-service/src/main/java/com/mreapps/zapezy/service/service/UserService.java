@@ -2,6 +2,7 @@ package com.mreapps.zapezy.service.service;
 
 import com.mreapps.zapezy.dao.entity.Role;
 import com.mreapps.zapezy.service.entity.StatusMessage;
+import com.mreapps.zapezy.service.entity.UserDetailBean;
 
 import java.util.Locale;
 
@@ -25,5 +26,11 @@ public interface UserService
 
     void sendResetPasswordToken(String email, String urlPrefix, Locale locale);
 
-    String changePassword(String resetPasswordToken, String password);
+    String resetPassword(String resetPasswordToken, String password);
+
+    UserDetailBean getUserDetails(String email);
+
+    StatusMessage storeUserDetails(String email, UserDetailBean userDetailBean, Locale locale);
+
+    StatusMessage changePassword(String email, String oldPassword, String newPassword, Locale locale);
 }

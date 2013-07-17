@@ -112,6 +112,12 @@
             <version>0.6.3</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>4.3.1.Final</version>
+        </dependency>
+
     </dependencies>
 
     <build>

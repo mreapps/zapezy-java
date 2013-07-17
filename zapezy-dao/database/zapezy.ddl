@@ -12,7 +12,12 @@ begin;
     role varchar(20) not null,
     fb_id int8,
     fb_access_token varchar(256),
-    fb_access_token_expires timestamp
+    fb_access_token_expires timestamp,
+    firstname varchar(100),
+    lastname varchar(100),
+    birthday date,
+    gender int2 not null,
+    image_uid int4
   );
   create unique index uix_users_email_address on users (email_address);
 
@@ -21,6 +26,8 @@ begin;
     uid serial primary key not null,
     content oid not null
   );
+
+  alter table users add constraint fk_users_image foreign key (image_uid) references blob_file (uid);
 
   create table channel
   (

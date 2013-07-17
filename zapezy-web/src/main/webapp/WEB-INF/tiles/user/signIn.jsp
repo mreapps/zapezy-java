@@ -1,6 +1,12 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
+<script type="text/javascript">
+    $(function () {
+        $("#email").focus();
+    });
+</script>
+
 <form id="login_form" name="f" action="<c:url value='j_spring_security_check' />" method='POST'>
     <table>
         <tr>

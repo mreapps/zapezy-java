@@ -2,10 +2,15 @@ package com.mreapps.zapezy.web.controller;
 
 import com.mreapps.zapezy.service.entity.StatusMessage;
 import com.mreapps.zapezy.service.entity.StatusMessageType;
+import com.mreapps.zapezy.service.entity.UserDetailBean;
+import com.mreapps.zapezy.service.service.DateService;
+import com.mreapps.zapezy.service.service.GenderService;
 import com.mreapps.zapezy.service.service.MessageSourceService;
 import com.mreapps.zapezy.service.service.UserService;
 import com.mreapps.zapezy.web.ApplicationContext;
 import com.mreapps.zapezy.web.authentication.AutoLoginProvider;
+import com.mreapps.zapezy.web.bean.user.ChangePasswordBean;
+import com.mreapps.zapezy.web.bean.user.ChangePasswordValidator;
 import com.mreapps.zapezy.web.bean.user.ForgotPasswordBean;
 import com.mreapps.zapezy.web.bean.user.NewUserBean;
 import com.mreapps.zapezy.web.bean.user.NewUserValidator;
@@ -13,6 +18,7 @@ import com.mreapps.zapezy.web.bean.user.ResetPasswordBean;
 import com.mreapps.zapezy.web.bean.user.ResetPasswordValidator;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -44,6 +50,9 @@ public class UserController
     private ResetPasswordValidator resetPasswordValidator;
 
     @Autowired
+    private ChangePasswordValidator changePasswordValidator;
+
+    @Autowired
     private UserService userService;
 
     @Autowired
@@ -52,17 +61,45 @@ public class UserController
     @Autowired
     private MessageSourceService messageSourceService;
 
-    @RequestMapping(value = "/signUp", method = RequestMethod.GET)
-    public ModelAndView signUp()
+    @Autowired
+    private DateService dateService;
+
+    @Autowired
+    private GenderService genderService;
+
+    @RequestMapping(value = "/accessDenied", method = RequestMethod.GET)
+    public String accessDenied(Principal principal, RedirectAttributes redirectAttributes, Locale locale)
     {
-        // TODO PreAuthenticated only valid for users not signed in
+        if (principal == null)
+        {
+            redirectAttributes.addFlashAttribute("STATUS_MESSAGE", new StatusMessage(StatusMessageType.INFO, messageSourceService.get("you_must_be_logged_in_to_view_this_page", locale)));
+        } else
+        {
+            redirectAttributes.addFlashAttribute("STATUS_MESSAGE", new StatusMessage(StatusMessageType.INFO, messageSourceService.get("you_must_be_an_administrator_to_view_this_page", locale)));
+        }
+        return "redirect:/signIn";
+    }
+
+    @RequestMapping(value = "/signUp", method = RequestMethod.GET)
+    public ModelAndView signUp(Principal principal, Locale locale, RedirectAttributes redirectAttributes)
+    {
+        if (principal != null)
+        {
+            redirectAttributes.addFlashAttribute("STATUS_MESSAGE", new StatusMessage(StatusMessageType.ERROR, messageSourceService.get("this_page_is_only_accessible_when_not_signed_in", locale)));
+            return new ModelAndView("redirect:/");
+        }
         return new ModelAndView("user/signUp.jsp", "newUser", new NewUserBean());
     }
 
     @RequestMapping(value = "/registerNewUser", method = RequestMethod.POST)
-    public String registerUser(@Valid @ModelAttribute("newUser") NewUserBean newUser, BindingResult result, HttpServletRequest request, Locale locale)
+    public String registerUser(@Valid @ModelAttribute("newUser") NewUserBean newUser, BindingResult result, HttpServletRequest request, Locale locale, Principal principal, RedirectAttributes redirectAttributes)
     {
-        // TODO PreAuthenticated only valid for users not signed in
+        if (principal != null)
+        {
+            redirectAttributes.addFlashAttribute("STATUS_MESSAGE", new StatusMessage(StatusMessageType.ERROR, messageSourceService.get("this_page_is_only_accessible_when_not_signed_in", locale)));
+            return "redirect:/";
+        }
+
         newUserValidator.validate(newUser, result);
         if (result.hasErrors())
         {
@@ -94,10 +131,10 @@ public class UserController
         return "redirect:/";
     }
 
+    @Secured({"ROLE_USER", "ROLE_ADMIN"})
     @RequestMapping(value = "/resendActivationToken", method = RequestMethod.GET)
     public String resendActivationToken(Principal principal, RedirectAttributes redirectAttributes, Locale locale)
     {
-        // TODO PreAuthenticated only valid for signed in users
         if (principal != null)
         {
             String email = principal.getName();
@@ -112,38 +149,55 @@ public class UserController
     }
 
     @RequestMapping(value = "/signIn", method = RequestMethod.GET)
-    public String signIn()
+    public String signIn(Locale locale, Principal principal, RedirectAttributes redirectAttributes)
     {
-        // TODO PreAuthenticated only valid for users not signed in
+        if (principal != null)
+        {
+            redirectAttributes.addFlashAttribute("STATUS_MESSAGE", new StatusMessage(StatusMessageType.ERROR, messageSourceService.get("this_page_is_only_accessible_when_not_signed_in", locale)));
+            return "redirect:/";
+        }
         return "user/signIn.jsp";
     }
 
     @RequestMapping(value = "/signInFailed", method = RequestMethod.GET)
-    public String signInFailed(RedirectAttributes redirectAttributes, Locale locale)
+    public String signInFailed(RedirectAttributes redirectAttributes, Locale locale, Principal principal)
     {
-        // TODO PreAuthenticated only valid for users not signed in
+        if (principal != null)
+        {
+            redirectAttributes.addFlashAttribute("STATUS_MESSAGE", new StatusMessage(StatusMessageType.ERROR, messageSourceService.get("this_page_is_only_accessible_when_not_signed_in", locale)));
+            return "redirect:/";
+        }
         redirectAttributes.addFlashAttribute("STATUS_MESSAGE", new StatusMessage(StatusMessageType.ERROR, messageSourceService.get("login.failed", locale)));
         return "redirect:/signIn";
     }
 
+    @Secured({"ROLE_USER", "ROLE_ADMIN"})
     @RequestMapping(value = "/signOut", method = RequestMethod.GET)
     public String signOut(RedirectAttributes redirectAttributes, Locale locale)
     {
-        // TODO PreAuthenticated only valid for signed in users
         redirectAttributes.addFlashAttribute("STATUS_MESSAGE", new StatusMessage(StatusMessageType.SUCCESS, messageSourceService.get("logout.success", locale)));
         return "redirect:/signIn";
     }
 
     @RequestMapping(value = "/forgotPassword", method = RequestMethod.GET)
-    public ModelAndView forgotPassword()
+    public ModelAndView forgotPassword(Locale locale, Principal principal, RedirectAttributes redirectAttributes)
     {
+        if (principal != null)
+        {
+            redirectAttributes.addFlashAttribute("STATUS_MESSAGE", new StatusMessage(StatusMessageType.ERROR, messageSourceService.get("this_page_is_only_accessible_when_not_signed_in", locale)));
+            return new ModelAndView("redirect:/");
+        }
         return new ModelAndView("user/forgotPassword.jsp", "passwordBean", new ForgotPasswordBean());
     }
 
     @RequestMapping(value = "/sendResetPasswordToken", method = RequestMethod.POST)
-    public String sendResetPasswordToken(@Valid @ModelAttribute("passwordBean") ForgotPasswordBean passwordBean, BindingResult result, RedirectAttributes redirectAttributes, Locale locale)
+    public String sendResetPasswordToken(@Valid @ModelAttribute("passwordBean") ForgotPasswordBean passwordBean, BindingResult result, RedirectAttributes redirectAttributes, Locale locale, Principal principal)
     {
-        // TODO PreAuthenticated only valid for users not signed in
+        if (principal != null)
+        {
+            redirectAttributes.addFlashAttribute("STATUS_MESSAGE", new StatusMessage(StatusMessageType.ERROR, messageSourceService.get("this_page_is_only_accessible_when_not_signed_in", locale)));
+            return "redirect:/";
+        }
         if (result.hasErrors())
         {
             return "user/forgotPassword.jsp";
@@ -158,9 +212,13 @@ public class UserController
     }
 
     @RequestMapping(value = "/resetPassword", method = RequestMethod.GET)
-    public String resetPassword(@RequestParam("code") String code, Locale locale, HttpServletRequest request, Principal principal, RedirectAttributes redirectAttributes, ModelMap model)
+    public String resetPassword(@RequestParam("code") String code, Locale locale, Principal principal, RedirectAttributes redirectAttributes, ModelMap model)
     {
-        // TODO PreAuthenticated only valid for users not signed in
+        if (principal != null)
+        {
+            redirectAttributes.addFlashAttribute("STATUS_MESSAGE", new StatusMessage(StatusMessageType.ERROR, messageSourceService.get("this_page_is_only_accessible_when_not_signed_in", locale)));
+            return "redirect:/";
+        }
         String email = userService.getEmailByResetPasswordToken(code);
         if (email != null)
         {
@@ -175,17 +233,21 @@ public class UserController
         }
     }
 
-    @RequestMapping(value = "/changePassword", method = RequestMethod.POST)
-    public String changePassword(@Valid @ModelAttribute("passwordBean") ResetPasswordBean passwordBean, BindingResult result, HttpServletRequest request, Locale locale, RedirectAttributes redirectAttributes)
+    @RequestMapping(value = "/_resetPassword", method = RequestMethod.POST)
+    public String postResetPassword(@Valid @ModelAttribute("passwordBean") ResetPasswordBean passwordBean, BindingResult result, HttpServletRequest request, Locale locale, RedirectAttributes redirectAttributes, Principal principal)
     {
-        // TODO PreAuthenticated only valid for users not signed in
+        if (principal != null)
+        {
+            redirectAttributes.addFlashAttribute("STATUS_MESSAGE", new StatusMessage(StatusMessageType.ERROR, messageSourceService.get("this_page_is_only_accessible_when_not_signed_in", locale)));
+            return "redirect:/";
+        }
         resetPasswordValidator.validate(passwordBean, result);
         if (result.hasErrors())
         {
             return "user/resetPassword.jsp";
         } else
         {
-            String email = userService.changePassword(passwordBean.getToken(), passwordBean.getPassword1());
+            String email = userService.resetPassword(passwordBean.getToken(), passwordBean.getPassword1());
             if (email != null)
             {
                 doAutoLogin(email, request);
@@ -195,10 +257,80 @@ public class UserController
         }
     }
 
+    @Secured({"ROLE_USER", "ROLE_ADMIN"})
+    @RequestMapping(value = "/changeUserDetails", method = RequestMethod.GET)
+    public String changeUserDetails(Principal principal, ModelMap model, Locale locale)
+    {
+        UserDetailBean userDetailBean = userService.getUserDetails(principal.getName());
+        model.addAttribute("userDetailBean", userDetailBean);
+
+        model.addAttribute("years", dateService.getYears());
+        model.addAttribute("months", dateService.getMonths(locale));
+        model.addAttribute("days", dateService.getDaysOfMonth());
+        model.addAttribute("genders", genderService.getGenders(locale));
+
+        return "user/changeUserDetails.jsp";
+    }
+
+    @Secured({"ROLE_USER", "ROLE_ADMIN"})
+    @RequestMapping(value = "/_changeUserDetails", method = RequestMethod.POST)
+    public String postChangeUserDetails(@Valid @ModelAttribute("userDetailBean") UserDetailBean userDetailBean, Principal principal, BindingResult result, ModelMap model, Locale locale, RedirectAttributes redirectAttributes)
+    {
+        if (principal == null)
+        {
+            return "redirect:/";
+        }
+
+        if (result.hasErrors())
+        {
+            model.addAttribute("years", dateService.getYears());
+            model.addAttribute("months", dateService.getMonths(locale));
+            model.addAttribute("days", dateService.getDaysOfMonth());
+            model.addAttribute("genders", genderService.getGenders(locale));
+
+            return "user/changeUserDetails.jsp";
+        } else
+        {
+            StatusMessage statusMessage = userService.storeUserDetails(principal.getName(), userDetailBean, locale);
+            redirectAttributes.addFlashAttribute("STATUS_MESSAGE", statusMessage);
+            return "redirect:/";
+        }
+    }
+
+    @Secured({"ROLE_USER", "ROLE_ADMIN"})
+    @RequestMapping(value = "/changePassword", method = RequestMethod.GET)
+    public ModelAndView changePassword(Principal principal)
+    {
+        ChangePasswordBean changePasswordBean = new ChangePasswordBean();
+        changePasswordBean.setEmail(principal.getName());
+
+        return new ModelAndView("user/changePassword.jsp", "changePasswordBean", changePasswordBean);
+    }
+
+    @Secured({"ROLE_USER", "ROLE_ADMIN"})
+    @RequestMapping(value = "/_changePassword", method = RequestMethod.POST)
+    public String postChangePassword(@Valid @ModelAttribute("changePasswordBean") ChangePasswordBean changePasswordBean, BindingResult result, Principal principal, Locale locale, RedirectAttributes redirectAttributes)
+    {
+        if (principal == null)
+        {
+            return "redirect:/";
+        }
+
+        changePasswordBean.setEmail(principal.getName());
+        changePasswordValidator.validate(changePasswordBean, result);
+        if (result.hasErrors())
+        {
+            return "user/changePassword.jsp";
+        } else
+        {
+            StatusMessage statusMessage = userService.changePassword(changePasswordBean.getEmail(), changePasswordBean.getOldPassword(), changePasswordBean.getPassword1(), locale);
+            redirectAttributes.addFlashAttribute("STATUS_MESSAGE", statusMessage);
+            return "redirect:/";
+        }
+    }
+
 
     /*
-    TODO Change user details
-    TODO Change password
     TODO Change email address
     TODO Sign in with facebook
     TODO Remember me
@@ -209,7 +341,6 @@ public class UserController
 
     private void doAutoLogin(String username, HttpServletRequest request)
     {
-
         try
         {
             // Must be called from request filtered by Spring Security, otherwise SecurityContextHolder is not updated

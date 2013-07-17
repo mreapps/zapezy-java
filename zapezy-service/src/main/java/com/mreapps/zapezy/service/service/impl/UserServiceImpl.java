@@ -5,6 +5,7 @@ import com.mreapps.zapezy.dao.entity.User;
 import com.mreapps.zapezy.dao.repository.UserDao;
 import com.mreapps.zapezy.service.entity.StatusMessage;
 import com.mreapps.zapezy.service.entity.StatusMessageType;
+import com.mreapps.zapezy.service.entity.UserDetailBean;
 import com.mreapps.zapezy.service.service.MailService;
 import com.mreapps.zapezy.service.service.MessageSourceService;
 import com.mreapps.zapezy.service.service.UserService;
@@ -185,7 +186,7 @@ public class UserServiceImpl implements UserService
 
     @Override
     @Transactional(readOnly = false)
-    public String changePassword(String resetPasswordToken, String password)
+    public String resetPassword(String resetPasswordToken, String password)
     {
         User user = userDao.getByResetPasswordToken(resetPasswordToken);
         if(user != null)
@@ -196,6 +197,54 @@ public class UserServiceImpl implements UserService
             return userDao.store(user).getEmail();
         }
         return null;
+    }
+
+    @Override
+    public UserDetailBean getUserDetails(String email)
+    {
+        User user = userDao.getByEmail(email);
+        if(user != null)
+        {
+            UserDetailBean userDetailBean = new UserDetailBean();
+            userDetailBean.setFirstname(user.getFirstname());
+            userDetailBean.setLastname(user.getLastname());
+            userDetailBean.setBirthday(user.getBirthday());
+            userDetailBean.setGender(user.getGender());
+            userDetailBean.setImage(user.getImage() == null ? null : user.getImage().getContent());
+            return userDetailBean;
+        }
+        return null;
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public StatusMessage storeUserDetails(String email, UserDetailBean userDetailBean, Locale locale)
+    {
+        User user = userDao.getByEmail(email);
+        if(user != null)
+        {
+            user.setFirstname(userDetailBean.getFirstname());
+            user.setLastname(userDetailBean.getLastname());
+            user.setGender(userDetailBean.getGender());
+            user.setBirthday(userDetailBean.getBirthday());
+            userDao.store(user);
+            return new StatusMessage(StatusMessageType.SUCCESS, messageSourceService.get("user_details_successfully_updated", locale));
+        }
+        return new StatusMessage(StatusMessageType.ERROR, messageSourceService.get("user_not_found", locale));
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public StatusMessage changePassword(String email, String oldPassword, String newPassword, Locale locale)
+    {
+        if(validateCredentials(email, oldPassword))
+        {
+            User user = userDao.getByEmail(email);
+            user.setPassword(encryptPassword(user.getEmail(), newPassword));
+            userDao.store(user);
+            return new StatusMessage(StatusMessageType.SUCCESS, messageSourceService.get("password.change.success", locale));
+        }
+        return new StatusMessage(StatusMessageType.ERROR, messageSourceService.get("password.change.failed", locale));
     }
 
     private String encryptPassword(String email, String password)

@@ -2,7 +2,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
 <spring:message code="password.reset.type.new.password"/>
-<form:form method="post" commandName="passwordBean" action="changePassword.html">
+<form:form method="post" commandName="passwordBean" action="_resetPassword.html">
     <form:hidden path="token" />
     <table>
         <tr>
