@@ -28,12 +28,10 @@
         <constructor-arg index="0" value="512" />
     </bean>
 
-    <bean class="com.mreapps.zapezy.service.service.impl.SaltSourceImpl" id="saltSource"/>
-
     <security:authentication-manager>
         <security:authentication-provider user-service-ref="userServiceImpl">
             <security:password-encoder ref="passwordEncoder">
-                <security:salt-source ref="saltSource"/>
+                <security:salt-source ref="saltSourceImpl"/>
             </security:password-encoder>
         </security:authentication-provider>
     </security:authentication-manager>
