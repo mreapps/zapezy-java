@@ -39,6 +39,7 @@ import javax.validation.Valid;
 import java.security.Principal;
 import java.util.Locale;
 
+@RequestMapping(value = "/user")
 @Controller
 public class UserController
 {
@@ -78,7 +79,7 @@ public class UserController
         {
             redirectAttributes.addFlashAttribute("STATUS_MESSAGE", new StatusMessage(StatusMessageType.INFO, messageSourceService.get("you_must_be_an_administrator_to_view_this_page", locale)));
         }
-        return "redirect:/signIn";
+        return "redirect:/user/signIn";
     }
 
     @RequestMapping(value = "/signUp", method = RequestMethod.GET)
@@ -169,7 +170,7 @@ public class UserController
             return "/home.jsp";
         }
         redirectAttributes.addFlashAttribute("STATUS_MESSAGE", new StatusMessage(StatusMessageType.ERROR, messageSourceService.get("login.failed", locale)));
-        return "redirect:/signIn";
+        return "redirect:/user/signIn";
     }
 
     @Secured({"ROLE_USER", "ROLE_ADMIN"})
@@ -177,7 +178,7 @@ public class UserController
     public String signOut(RedirectAttributes redirectAttributes, Locale locale)
     {
         redirectAttributes.addFlashAttribute("STATUS_MESSAGE", new StatusMessage(StatusMessageType.SUCCESS, messageSourceService.get("logout.success", locale)));
-        return "redirect:/signIn";
+        return "redirect:/user/signIn";
     }
 
     @RequestMapping(value = "/forgotPassword", method = RequestMethod.GET)

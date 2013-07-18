@@ -11,11 +11,11 @@
 <html>
 <head>
     <title>zapezy.com - <spring:message code="slogan"/></title>
-    <link rel="icon" type="image/gif" href="resources/favicon.ico"/>
-    <link rel="stylesheet" href="resources/css/main.css" type="text/css"/>
-    <link rel="stylesheet" href="resources/css/form.css" type="text/css"/>
-    <link rel="stylesheet" href="resources/css/stylized.css" type="text/css"/>
-    <link rel="stylesheet" href="<spring:theme code="css"/>" type="text/css"/>
+    <link rel="icon" type="image/gif" href="${pageContext.servletContext.contextPath}/resources/favicon.ico"/>
+    <link rel="stylesheet" href="${pageContext.servletContext.contextPath}/resources/css/main.css" type="text/css"/>
+    <link rel="stylesheet" href="${pageContext.servletContext.contextPath}/resources/css/form.css" type="text/css"/>
+    <link rel="stylesheet" href="${pageContext.servletContext.contextPath}/resources/css/stylized.css" type="text/css"/>
+    <link rel="stylesheet" href="${pageContext.servletContext.contextPath}/<spring:theme code="css"/>" type="text/css"/>
     <%--<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/redmond/jquery-ui.min.css" type="text/css"/>--%>
     <%--<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/pepper-grinder/jquery-ui.min.css" type="text/css"/>--%>
     <link rel="stylesheet" href="http://cdn.wijmo.com/themes/cobalt/jquery-wijmo.css" type="text/css"/>
@@ -26,7 +26,7 @@
 <body>
 <div id="wrapper">
     <div id="header">
-        <img src="resources/image/tv.png"/>
+        <img src="${pageContext.servletContext.contextPath}/resources/image/tv.png"/>
 
         <h1>zapezy.com</h1>
 
@@ -35,14 +35,14 @@
         <div id="menu">
             <ul>
                 <!-- todo dynamic menu -->
-                <li class="selected"><a href="home">Home</a></li>
-                <li><a href="tvscreen">TV-screen</a></li>
+                <li class="selected"><a href="${pageContext.servletContext.contextPath}/home">Home</a></li>
+                <li><a href="${pageContext.servletContext.contextPath}/tvscreen">TV-screen</a></li>
                 <sec:authorize access="isAnonymous()">
-                    <li><a href="signIn"><spring:message code="label.sign_in"/> </a></li>
+                    <li><a href="${pageContext.servletContext.contextPath}/user/signIn"><spring:message code="label.sign_in"/> </a></li>
                 </sec:authorize>
                 <sec:authorize access="isAuthenticated()">
                     <li><a href="<c:url value="/j_spring_security_logout" />"><spring:message code="label.sign_out"/></a></li>
-                    <li><a href="<c:url value="/changeUserDetails" />"><spring:message code="label.user_details"/></a></li>
+                    <li><a href="${pageContext.servletContext.contextPath}/user/changeUserDetails"><spring:message code="label.user_details"/></a></li>
                 </sec:authorize>
             </ul>
         </div>
@@ -52,14 +52,14 @@
                     if (language != null && language.equals("en"))
                     {
                 %>
-                <li><a href="?lang=no"><img class="flag" src="resources/image/flag_norway_bw.png"/></a></li>
-                <li><a href="?lang=en"><img class="flag" src="resources/image/flag_united_kingdom.png"/></a></li>
+                <li><a href="?lang=no"><img class="flag" src="${pageContext.servletContext.contextPath}/resources/image/flag_norway_bw.png"/></a></li>
+                <li><a href="?lang=en"><img class="flag" src="${pageContext.servletContext.contextPath}/resources/image/flag_united_kingdom.png"/></a></li>
                 <%
                 } else
                 {
                 %>
-                <li><a href="?lang=no"><img class="flag" src="resources/image/flag_norway.png"/></a></li>
-                <li><a href="?lang=en"><img class="flag" src="resources/image/flag_united_kingdom_bw.png"/></a></li>
+                <li><a href="?lang=no"><img class="flag" src="${pageContext.servletContext.contextPath}/resources/image/flag_norway.png"/></a></li>
+                <li><a href="?lang=en"><img class="flag" src="${pageContext.servletContext.contextPath}/resources/image/flag_united_kingdom_bw.png"/></a></li>
                 <%
                     }
                 %>

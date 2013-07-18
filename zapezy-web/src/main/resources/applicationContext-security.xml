@@ -10,13 +10,13 @@
 
     <security:global-method-security pre-post-annotations="enabled" secured-annotations="enabled"/>
 
-    <security:http auto-config="true" use-expressions="true" access-denied-page="/accessDenied">
+    <security:http auto-config="true" use-expressions="true" access-denied-page="/user/accessDenied">
         <sec:form-login
-                login-page="/signIn"
+                login-page="/user/signIn"
                 default-target-url="/home"
-                authentication-failure-url="/signInFailed"
+                authentication-failure-url="/user/signInFailed"
                 />
-        <security:logout logout-success-url="/signIn" />
+        <security:logout logout-success-url="/user/signIn" />
         <security:remember-me
                 key="zapezyRememberMeKey"
                 token-validity-seconds="864000"

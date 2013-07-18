@@ -10,6 +10,8 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.xml.bind.JAXBException;
@@ -54,5 +56,11 @@ public class EpgController
         redirectAttributes.addFlashAttribute("STATUS_MESSAGE", statusMessage);
 
         return "redirect:/";
+    }
+
+    @RequestMapping(value = "/epg/channel", method = RequestMethod.GET)
+    public ModelAndView channelEpg(@RequestParam("channelId") String channelId, Locale locale)
+    {
+        return new ModelAndView("epg/channelEpg.jsp");
     }
 }
