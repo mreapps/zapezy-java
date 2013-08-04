@@ -6,8 +6,6 @@
     <ul>
         <li>HTTPS</li>
         <li>Sette opp egen kanalliste</li>
-        <li>EPG for &eacute;n kanal</li>
-        <li>EPG for mange kanaler</li>
         <li>Oversikt over filmer fra netflix, hbo, nrk, tv2, viaplay</li>
         <li>S&oslash;k etter filmer</li>
         <li>IMDB-integrasjon</li>

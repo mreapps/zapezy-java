@@ -1,5 +1,6 @@
 package com.mreapps.zapezy.dao.repository.jpa;
 
+import com.mreapps.zapezy.core.utils.DateUtils;
 import com.mreapps.zapezy.dao.entity.tv.Channel;
 import com.mreapps.zapezy.dao.entity.tv.Programme;
 import com.mreapps.zapezy.dao.entity.tv.Programme_;
@@ -31,6 +32,26 @@ public class JpaProgrammeDao extends AbstractJpaDao<Programme> implements Progra
                 cb.equal(root.get(Programme_.channel), channel.getId()),
                 cb.greaterThan(root.get(Programme_.stop), now)
         );
+        cq.orderBy(cb.asc(root.get(Programme_.start)));
+
+        return findByCriteriaQuery(cq);
+    }
+
+    @Override
+    public List<Programme> findProgrammes(Channel channel)
+    {
+        Date todayAtMidnight = DateUtils.createDate(new Date(), 0, 0, 0);
+
+        final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        final CriteriaQuery<Programme> cq = cb.createQuery(Programme.class);
+        final Root<Programme> root = cq.from(Programme.class);
+        cq.select(root);
+        //noinspection unchecked
+        cq.where(
+                cb.equal(root.get(Programme_.channel), channel.getId()),
+                cb.greaterThan(root.get(Programme_.start), todayAtMidnight)
+        );
+
         cq.orderBy(cb.asc(root.get(Programme_.start)));
 
         return findByCriteriaQuery(cq);
@@ -97,9 +118,9 @@ public class JpaProgrammeDao extends AbstractJpaDao<Programme> implements Progra
 
         final Query query = entityManager.createNativeQuery(sql, Programme.class);
         Map<Integer, Programme> map = new HashMap<Integer, Programme>();
-        for(Object o : query.getResultList())
+        for (Object o : query.getResultList())
         {
-            Programme programme = (Programme)o;
+            Programme programme = (Programme) o;
             map.put(programme.getChannel().getId(), programme);
         }
         return map;
@@ -124,9 +145,9 @@ public class JpaProgrammeDao extends AbstractJpaDao<Programme> implements Progra
                 ")";
         final Query query = entityManager.createNativeQuery(sql, Programme.class);
         Map<Integer, Programme> map = new HashMap<Integer, Programme>();
-        for(Object o : query.getResultList())
+        for (Object o : query.getResultList())
         {
-            Programme programme = (Programme)o;
+            Programme programme = (Programme) o;
             map.put(programme.getChannel().getId(), programme);
         }
         return map;

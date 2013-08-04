@@ -7,4 +7,6 @@ import java.util.List;
 public interface ChannelService
 {
     List<Channel> listAll();
+
+    String getWebTvUrl(String channelId);
 }

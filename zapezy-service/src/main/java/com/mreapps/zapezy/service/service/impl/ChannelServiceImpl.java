@@ -21,4 +21,11 @@ public class ChannelServiceImpl implements ChannelService
     {
         return channelDao.listChannels();
     }
+
+    @Override
+    public String getWebTvUrl(String channelId)
+    {
+        Channel channel = channelDao.findByChannelId(channelId);
+        return channelId == null ? null : channel.getWebtvUrl();
+    }
 }

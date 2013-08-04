@@ -137,7 +137,7 @@ public class Programme extends AbstractBaseEntity
 
     public String getDescription(LanguageCode languageCode)
     {
-        return this.description.getText(languageCode);
+        return this.description == null ? "" : this.description.getText(languageCode);
     }
 
     public void setDescription(String description, LanguageCode languageCode)

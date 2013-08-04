@@ -1,13 +1,17 @@
-package com.mreapps.zapezy.web.bean.tv;
+package com.mreapps.zapezy.service.entity;
 
-public class ChannelBean
+import org.apache.commons.lang.StringUtils;
+
+public class EpgChannelBean
 {
     private String channelId;
     private String channelName;
     private String webtvUrl;
     private String iconUrl;
-    private ProgrammeBeanLight currentProgramme;
-    private ProgrammeBeanLight nextProgramme;
+    private ProgrammeBean currentProgramme;
+    private ProgrammeBean nextProgramme;
+
+    private boolean selected;
 
     public String getChannelId()
     {
@@ -39,12 +43,12 @@ public class ChannelBean
         this.iconUrl = iconUrl;
     }
 
-    public void setCurrentProgramme(ProgrammeBeanLight currentProgramme)
+    public void setCurrentProgramme(ProgrammeBean currentProgramme)
     {
         this.currentProgramme = currentProgramme;
     }
 
-    public void setNextProgramme(ProgrammeBeanLight nextProgramme)
+    public void setNextProgramme(ProgrammeBean nextProgramme)
     {
         this.nextProgramme = nextProgramme;
     }
@@ -56,12 +60,12 @@ public class ChannelBean
 
     public String getCurrentProgrammeStartTime()
     {
-        return this.currentProgramme == null ? "" : this.currentProgramme.getStartTime();
+        return this.currentProgramme == null ? "" : this.currentProgramme.getStart();
     }
 
     public String getCurrentProgrammeEndTime()
     {
-        return this.currentProgramme == null ? "" : this.currentProgramme.getEndTime();
+        return this.currentProgramme == null ? "" : this.currentProgramme.getStop();
     }
 
     public String getNextProgrammeTitle()
@@ -71,12 +75,12 @@ public class ChannelBean
 
     public String getNextProgrammeStartTime()
     {
-        return this.nextProgramme == null ? "" : this.nextProgramme.getStartTime();
+        return this.nextProgramme == null ? "" : this.nextProgramme.getStart();
     }
 
     public String getNextProgrammeEndTime()
     {
-        return this.nextProgramme == null ? "" : this.nextProgramme.getEndTime();
+        return this.nextProgramme == null ? "" : this.nextProgramme.getStop();
     }
 
     public String getWebtvUrl()
@@ -87,5 +91,35 @@ public class ChannelBean
     public void setWebtvUrl(String webtvUrl)
     {
         this.webtvUrl = webtvUrl;
+    }
+
+    public String getCurrentStartAndTitle()
+    {
+        String s = "";
+        if(StringUtils.isNotBlank(getCurrentProgrammeStartTime()))
+        {
+            s += getCurrentProgrammeStartTime()+"&nbsp;";
+        }
+        return s + getCurrentProgrammeTitle();
+    }
+
+    public String getNextStartAndTitle()
+    {
+        String s = "";
+        if(StringUtils.isNotBlank(getNextProgrammeStartTime()))
+        {
+            s += getNextProgrammeStartTime()+"&nbsp;";
+        }
+        return s + getNextProgrammeTitle();
+    }
+
+    public boolean isSelected()
+    {
+        return selected;
+    }
+
+    public void setSelected(boolean selected)
+    {
+        this.selected = selected;
     }
 }

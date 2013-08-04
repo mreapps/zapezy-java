@@ -14,7 +14,7 @@ public final class LocaleConverter
 
     public static Locale convertLocale(Locale locale)
     {
-//        if(locale.getLanguage().equals("nb"))
+        if(locale.getLanguage().equals("nb"))
         {
             locale = new Locale("no", "NO");
         }

@@ -22,4 +22,6 @@ public interface ProgrammeDao extends GenericDao<Programme>
     Map<Integer, Programme> findNextProgrammes();
 
     List<Programme> getFutureProgrammes(Channel channel);
+
+    List<Programme> findProgrammes(Channel channel);
 }

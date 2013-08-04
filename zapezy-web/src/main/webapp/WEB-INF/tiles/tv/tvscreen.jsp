@@ -11,7 +11,7 @@
     <script type="text/javascript">
         $(document).ready(function () {
             $("#channel_list").hide();
-            updateChannelList(true);
+            updateChannelList(false);
 
             $("#channel_list_mouselistener").mouseenter(function() {
                 showChannelList();
@@ -47,9 +47,9 @@
                     html:items.join('')
                 }).appendTo('#channel_list');
 
-                if(zap) {
-                    $("li:first-child").find('a').click();
-                }
+//                if(zap) {
+//                    $("li:first-child").find('a').click();
+//                }
             });
         }
 
@@ -75,7 +75,7 @@
     </script>
 </head>
 <body>
-<iframe id="tvframe" src=""></iframe>
+<iframe id="tvframe" src="${webTvUrl}"></iframe>
 <div id="channel_list"></div>
 <div id="channel_list_mouselistener"></div>
 

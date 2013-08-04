@@ -66,6 +66,9 @@
     <mvc:interceptors>
         <ref bean="localeChangeInterceptor"/>
         <ref bean="themeChangeInterceptor"/>
+        <bean class="com.mreapps.zapezy.web.interceptor.MessageInterceptor"/>
+        <bean class="com.mreapps.zapezy.web.interceptor.MenuInterceptor"/>
+        <bean class="com.mreapps.zapezy.web.interceptor.ExecuteTimeInterceptor"/>
     </mvc:interceptors>
 
     <bean id="handlerMapping"
@@ -74,11 +77,6 @@
     </bean>
 
     <mvc:resources mapping="/resources/**" location="/WEB-INF/resources/"/>
-
-    <mvc:interceptors>
-        <bean class="com.mreapps.zapezy.web.interceptor.MessageInterceptor"/>
-        <bean class="com.mreapps.zapezy.web.interceptor.ExecuteTimeInterceptor"/>
-    </mvc:interceptors>
 
     <bean id="connectionFactoryLocator" class="org.springframework.social.connect.support.ConnectionFactoryRegistry">
         <property name="connectionFactories">
