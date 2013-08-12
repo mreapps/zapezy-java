@@ -5,6 +5,7 @@
 
     <import resource="classpath:META-INF/spring-emf.xml"/>
 
+    <context:component-scan base-package="com.mreapps.zapezy.service.converter.impl"/>
     <context:component-scan base-package="com.mreapps.zapezy.service.service.impl"/>
 
 </beans>

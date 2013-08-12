@@ -8,4 +8,8 @@ import java.util.Locale;
 public interface EpgChannelService
 {
     List<EpgChannelBean> listAll(Locale locale);
+
+    List<EpgChannelBean> getSelectedChannels(String emailAddress, Locale locale);
+
+    List<EpgChannelBean> getUnselectedChannels(String emailAddress, Locale locale);
 }

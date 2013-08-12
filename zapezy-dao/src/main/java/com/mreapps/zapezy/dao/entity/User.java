@@ -1,18 +1,25 @@
 package com.mreapps.zapezy.dao.entity;
 
 import com.mreapps.zapezy.dao.entity.common.BlobFile;
+import com.mreapps.zapezy.dao.entity.tv.Distributor;
+import com.mreapps.zapezy.dao.entity.tv.UserChannel;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @SuppressWarnings("UnusedDeclaration")
 @Entity
@@ -68,6 +75,17 @@ public class User extends AbstractBaseEntity
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "image_uid")
     private BlobFile image;
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "user_distributor",
+            joinColumns = {@JoinColumn(name = "user_uid", referencedColumnName = "uid")},
+            inverseJoinColumns = {@JoinColumn(name = "distributor_uid", referencedColumnName = "uid")}
+    )
+    private Set<Distributor> distributors = new HashSet<Distributor>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<UserChannel> channels = new HashSet<UserChannel>();
 
     @PrePersist
     public void prePersist()
@@ -228,5 +246,20 @@ public class User extends AbstractBaseEntity
     public void setFacebookAccessTokenExpires(Date facebookAccessTokenExpires)
     {
         this.facebookAccessTokenExpires = facebookAccessTokenExpires;
+    }
+
+    public Set<Distributor> getDistributors()
+    {
+        return distributors;
+    }
+
+    public void setChannels(Set<UserChannel> channels)
+    {
+        this.channels = channels;
+    }
+
+    public Set<UserChannel> getChannels()
+    {
+        return channels;
     }
 }

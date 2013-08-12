@@ -61,7 +61,7 @@ public class MenuInterceptor extends HandlerInterceptorAdapter
                         break;
                     }
                 }
-                menu.add(new MenuBean(messageSourceService.get("setup", locale), request.getContextPath()+"/user/changeUserDetails", false));
+                menu.add(new MenuBean(messageSourceService.get("settings", locale), request.getContextPath()+"/user/settings", false));
                 menu.add(new MenuBean(messageSourceService.get("label.sign_out", locale), request.getContextPath()+"/j_spring_security_logout", false));
             }
             else

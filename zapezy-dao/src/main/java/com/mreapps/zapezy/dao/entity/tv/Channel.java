@@ -5,6 +5,7 @@ import com.mreapps.zapezy.dao.entity.AbstractBaseEntity;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -42,6 +43,9 @@ public class Channel extends AbstractBaseEntity
 
     @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ChannelIcon> icons = new HashSet<ChannelIcon>();
+
+    @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<DistributorChannel> distributors = new HashSet<DistributorChannel>();
 
     public String getChannelId()
     {
@@ -121,5 +125,21 @@ public class Channel extends AbstractBaseEntity
     public void setWebtvUrl(String webtvUrl)
     {
         this.webtvUrl = webtvUrl;
+    }
+
+    public Set<DistributorChannel> getDistributorChannels()
+    {
+        return distributors;
+    }
+
+    public Set<Distributor> getDistributors()
+    {
+        Set<Distributor> result = new HashSet<Distributor>();
+        for (DistributorChannel distributorChannel : distributors)
+        {
+            result.add(distributorChannel.getDistributor());
+        }
+
+        return result;
     }
 }

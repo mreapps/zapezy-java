@@ -16,7 +16,7 @@
     });
 </script>
 
-<form:form method="post" commandName="userDetailBean" action="_changeUserDetails.html" cssClass="eform">
+<form:form method="post" commandName="userDetailBean" action="saveChannelList.html" cssClass="eform">
     <h1><spring:message code="user.edit_user_details"/></h1>
     <table>
         <tr>

@@ -110,4 +110,45 @@ begin;
     user_agent varchar(256) not null,
     created_time timestamp not null default current_timestamp
   );
+
+  create table distributor
+  (
+    uid serial primary key not null,
+    name varchar(256) not null unique ,
+    web_site varchar(256) not null unique,
+    icon_url varchar(1024) not null
+  );
+
+  create table distributor_channel
+  (
+    uid serial primary key not null,
+    distributor_uid int4 not null,
+    channel_uid int4 not null,
+    webtv_url varchar(256) not null
+  );
+  create unique index uix_distributor_channel_key on distributor_channel (distributor_uid, channel_uid);
+  alter table distributor_channel add constraint fk_distributor_channel_distributor foreign key (distributor_uid) references distributor (uid);
+  alter table distributor_channel add constraint fk_distributor_channel_channel foreign key (channel_uid) references channel (uid);
+
+  create table user_distributor
+  (
+    user_uid int4 not null,
+    distributor_uid int4 not null,
+    primary key (user_uid, distributor_uid)
+  );
+  alter table user_distributor add constraint fk_user_distributor_user foreign key (user_uid) references users (uid);
+  alter table user_distributor add constraint fk_user_distributor_distributor foreign key (distributor_uid) references distributor (uid);
+
+  create table user_channel
+  (
+    uid serial primary key not null,
+    user_uid int4 not null,
+    channel_uid int4 not null,
+    distributor_uid int4 not null,
+    sort_index int2 not null
+  );
+  create unique index uix_user_channel_key on user_channel (user_uid, channel_uid);
+  alter table user_channel add constraint fk_user_channel_user foreign key (user_uid) references users (uid);
+  alter table user_channel add constraint fk_user_channel_channel foreign key (channel_uid) references channel (uid);
+  alter table user_channel add constraint fk_user_channel_distributor foreign key (distributor_uid) references distributor (uid);
 end;

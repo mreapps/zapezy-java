@@ -122,6 +122,10 @@ public class Programme extends AbstractBaseEntity
 
     public void setTitle(String title, LanguageCode languageCode)
     {
+        if(this.title == null)
+        {
+            this.title = new LanguageString();
+        }
         this.title.setText(title, languageCode, 100);
     }
 
@@ -132,6 +136,10 @@ public class Programme extends AbstractBaseEntity
 
     public void setSubTitle(String subTitle, LanguageCode languageCode)
     {
+        if(this.subTitle == null)
+        {
+            this.subTitle = new LanguageString();
+        }
         this.subTitle.setText(subTitle, languageCode, 256);
     }
 
@@ -142,6 +150,10 @@ public class Programme extends AbstractBaseEntity
 
     public void setDescription(String description, LanguageCode languageCode)
     {
+        if(this.description == null)
+        {
+            this.description = new LanguageString();
+        }
         this.description.setText(description, languageCode, 2048);
     }
 

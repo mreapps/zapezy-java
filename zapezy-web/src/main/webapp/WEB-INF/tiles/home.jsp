@@ -5,7 +5,18 @@
     <h1>TODO</h1>
     <ul>
         <li>HTTPS</li>
-        <li>Sette opp egen kanalliste</li>
+        <li>
+            Velge distribut&oslash;r p&aring; de ulike kanalene<br />
+             - nrk<br />
+             - tv2 sumo<br />
+             - viaplay<br />
+             - comoyo<br />
+             - canal digital go<br />
+             - nextgentel<br />
+             - altibox<br />
+             - netflix<br />
+             - hbo nordic
+        </li>
         <li>Oversikt over filmer fra netflix, hbo, nrk, tv2, viaplay</li>
         <li>S&oslash;k etter filmer</li>
         <li>IMDB-integrasjon</li>

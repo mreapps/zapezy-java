@@ -1,5 +1,8 @@
 package com.mreapps.zapezy.dao.entity;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -23,5 +26,24 @@ public class AbstractBaseEntity implements BaseEntity
     public void setId(Integer id)
     {
         this.id = id;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        return obj == this ||
+                (obj instanceof AbstractBaseEntity &&
+                        new EqualsBuilder()
+                                .append(getClass(), obj.getClass())
+                                .append(id, ((AbstractBaseEntity) obj).id)
+                                .isEquals());
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return new HashCodeBuilder(17, 37)
+                .append(id)
+                .toHashCode();
     }
 }

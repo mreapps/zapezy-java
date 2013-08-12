@@ -295,7 +295,7 @@ public class UserController
         {
             StatusMessage statusMessage = userService.storeUserDetails(principal.getName(), userDetailBean, locale);
             redirectAttributes.addFlashAttribute("STATUS_MESSAGE", statusMessage);
-            return "redirect:/";
+            return "redirect:/user/settings";
         }
     }
 
@@ -355,5 +355,12 @@ public class UserController
             SecurityContextHolder.getContext().setAuthentication(null);
             logger.error("Failure in autoLogin", e);
         }
+    }
+
+    @Secured({"ROLE_USER", "ROLE_ADMIN"})
+    @RequestMapping(value = "/settings", method = RequestMethod.GET)
+    public ModelAndView userSettings()
+    {
+        return new ModelAndView("user/settings.jsp");
     }
 }

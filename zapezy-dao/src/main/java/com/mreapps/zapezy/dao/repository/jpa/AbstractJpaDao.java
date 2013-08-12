@@ -43,7 +43,7 @@ public class AbstractJpaDao<T extends BaseEntity> implements GenericDao<T>
     public T get(long id)
     {
         @SuppressWarnings("unchecked") Class<T> persistentClass = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
-        return entityManager.find(persistentClass, id);
+        return entityManager.find(persistentClass, (int)id);
     }
 
     protected final <T> T findOneByCriteriaQuery(final CriteriaQuery<T> cq)
