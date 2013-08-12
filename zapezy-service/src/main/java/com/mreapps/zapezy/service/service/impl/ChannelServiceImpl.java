@@ -5,7 +5,6 @@ import com.mreapps.zapezy.dao.entity.tv.Channel;
 import com.mreapps.zapezy.dao.entity.tv.Distributor;
 import com.mreapps.zapezy.dao.entity.tv.UserChannel;
 import com.mreapps.zapezy.dao.repository.ChannelDao;
-import com.mreapps.zapezy.dao.repository.DistributorDao;
 import com.mreapps.zapezy.dao.repository.UserDao;
 import com.mreapps.zapezy.service.converter.DistributorConverter;
 import com.mreapps.zapezy.service.entity.UserChannelBean;
@@ -28,9 +27,6 @@ public class ChannelServiceImpl implements ChannelService
 {
     @Autowired
     private ChannelDao channelDao;
-
-    @Autowired
-    private DistributorDao distributorDao;
 
     @Autowired
     private UserDao userDao;
@@ -150,16 +146,16 @@ public class ChannelServiceImpl implements ChannelService
         if (user != null)
         {
             Set<String> existing = new TreeSet<String>();
-            for(UserChannel userChannel : Collections.unmodifiableCollection(user.getChannels()))
+            for (UserChannel userChannel : Collections.unmodifiableCollection(user.getChannels()))
             {
                 String channelId = userChannel.getChannel().getChannelId();
                 int index = channelIds.indexOf(channelId);
-                if(index < 0)
+                if (index < 0)
                 {
                     user.getChannels().remove(userChannel);
-                }
-                else {
-                    userChannel.setSortIndex((short)(index+1));
+                } else
+                {
+                    userChannel.setSortIndex((short) (index + 1));
                     existing.add(channelId);
                 }
             }
@@ -167,12 +163,12 @@ public class ChannelServiceImpl implements ChannelService
             short sortIndex = 1;
             for (String channelId : channelIds)
             {
-                if(!existing.contains(channelId))
+                if (!existing.contains(channelId))
                 {
                     Channel channel = channelDao.findByChannelId(channelId);
                     if (channel != null)
                     {
-    //                        Distributor distributor = userChannelBean.getSelectedDistributor() == null ? null : distributorDao.get(userChannelBean.getSelectedDistributor().getId());
+                        //                        Distributor distributor = userChannelBean.getSelectedDistributor() == null ? null : distributorDao.get(userChannelBean.getSelectedDistributor().getId());
                         Distributor distributor = channel.getDistributors().iterator().next();
                         UserChannel userChannel = new UserChannel();
                         userChannel.setUser(user);
